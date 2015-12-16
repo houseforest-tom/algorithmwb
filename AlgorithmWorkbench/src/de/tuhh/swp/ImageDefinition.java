@@ -1,8 +1,8 @@
 /**
  * <=========================================================================================>
- * File: 	 ImageDefinition.java
- * Created:  08.12.2015
- * Author:   HAUSWALD, Tom.
+ * File: ImageDefinition.java
+ * Created: 08.12.2015
+ * Author: HAUSWALD, Tom.
  * <=========================================================================================>
  */
 
@@ -11,10 +11,8 @@ package de.tuhh.swp;
 /**
  * TODO: Add type documentation here.
  */
-public class ImageDefinition {
-
-	public ImageDefinition() {
-	}
+public class ImageDefinition
+{
 
 	// ===========================================================
 	// Constants
@@ -26,13 +24,19 @@ public class ImageDefinition {
 	// Fields
 	// ===========================================================
 
-	public int minWidth, maxWidth, minHeight, maxHeight;
+	public int width, height;
+	public char label;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 
-	;;
+	public ImageDefinition( int width, int height, char label )
+	{
+		this.width = width;
+		this.height = height;
+		this.label = label;
+	}
 
 	// ===========================================================
 	// Getter & Setter
