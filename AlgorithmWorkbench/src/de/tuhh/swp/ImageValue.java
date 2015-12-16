@@ -8,78 +8,87 @@
 
 package de.tuhh.swp;
 
+import org.garret.perst.Persistent;
+
 /**
  * TODO: Add type documentation here.
  */
-public class ImageValue
-{
+public class ImageValue extends Persistent {
 
-	// ===========================================================
-	// Constants
-	// ===========================================================
+    // ===========================================================
+    // Constants
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-	private ImageDefinition definition;
-	private char[] pixels;
+    private ImageDefinition definition;
+    private byte[] pixels;
+    private byte label;
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-	public ImageValue( ImageDefinition definition )
-	{
-		this.definition = definition;
-		this.pixels = new char[definition.width * definition.height];
-	}
+    public ImageValue(ImageDefinition definition, byte label) {
+        this.definition = definition;
+        this.pixels = new byte[definition.width * definition.height];
+        this.label = label;
+    }
 
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
 
-	public char getPixel( int x, int y )
-	{
-		return pixels[x + y * definition.width];
-	}
+    public byte getPixel(int x, int y) {
+        return pixels[x + y * definition.width];
+    }
 
-	public void setPixel( int x, int y, char pixel )
-	{
-		pixels[x + y * definition.width] = pixel;
-	}
+    public void setPixel(int x, int y, byte pixel) {
+        pixels[x + y * definition.width] = pixel;
+    }
 
-	public void setPixels( char[] pixels )
-	{
-		if( pixels.length != this.pixels.length )
-		{
-			System.err.println( "Expected " + this.pixels.length + " pixel values, but got " + pixels.length );
-			System.exit( -1 );
-		}
+    public void setPixels(byte[] pixels) {
+        if (pixels.length != this.pixels.length) {
+            System.err.println("Expected " + this.pixels.length + " pixel values, but got " + pixels.length);
+            System.exit(-1);
+        }
 
-		for( int i = 0; i < pixels.length; ++i )
-		{
-			this.pixels[i] = pixels[i];
-		}
-	}
+        for (int i = 0; i < pixels.length; ++i) {
+            this.pixels[i] = pixels[i];
+        }
+    }
 
-	// ===========================================================
-	// Override Methods
-	// ===========================================================
+    public byte[] getPixels() {
+        return pixels;
+    }
 
-	;;
+    public ImageDefinition getDefinition() {
+        return definition;
+    }
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
+    public byte getLabel(){
+        return label;
+    }
 
-	;;
+    // ===========================================================
+    // Override Methods
+    // ===========================================================
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
+    ;;
 
-	;;
+    // ===========================================================
+    // Methods
+    // ===========================================================
+
+    ;;
+
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
+
+    ;;
 }
