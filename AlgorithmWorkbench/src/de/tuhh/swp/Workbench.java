@@ -30,6 +30,10 @@ import javax.swing.*;
  */
 public class Workbench extends JFrame {
 
+    // GUI window dimensions.
+    public static final int WINDOW_WIDTH = 384;
+    public static final int WINDOW_HEIGHT = 640;
+
     // Perst stuff.
     private Database db;
     private Storage store;
@@ -58,6 +62,7 @@ public class Workbench extends JFrame {
             try {
                 Workbench wb = new Workbench();
                 wb.setVisible(true);
+                wb.setResizable(false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -88,18 +93,20 @@ public class Workbench extends JFrame {
         store = StorageFactory.getInstance().createStorage();
         store.open(dbPath, 1024);
         db = new Database(store, false);
-        if (dbExists) System.out.println("Loaded " + db.getRecords(ImageValue.class).size() + " images.");
+        if (dbExists) {
+            int count = db.getRecords(ImageValue.class).size();
+            images = db.getRecords(ImageValue.class).toList().toArray(new ImageValue[count]);
+            System.out.println("Loaded " + count + " images.");
+        }
 
 
         // Window was closed.
         addWindowListener(new WindowAdapter() {
-                              public void windowClosing(WindowEvent event) {
-                                  store.close();
-                                  System.exit(0);
-                              }
-                          }
-
-        );
+            public void windowClosing(WindowEvent event) {
+                store.close();
+                System.exit(0);
+            }
+        });
     }
 
     /**
@@ -107,17 +114,11 @@ public class Workbench extends JFrame {
      */
     private void initialize() {
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int screenWidth = screenSize.width;
-        int screenHeight = screenSize.height;
-        int width = screenWidth / 2;
-        int height = (int) (width / 16.0f * 9.0f);
-
-        setBounds((screenWidth - width) / 2, (screenHeight - height) / 2, width, height);
-        setLayout(new FlowLayout());
+        setTitle("Algorithm Workbench");
+        setBounds(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        setLayout(null);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        add(new JLabel("Load Training Data:"));
 
         // Load labels file.
         loadLabelsButton = new JButton("Select Labels");
@@ -128,8 +129,8 @@ public class Workbench extends JFrame {
                 labelsFilePath = chooser.getSelectedFile().getAbsolutePath();
             }
         });
-
-        setComponentSize(loadLabelsButton, 140, 32);
+        setComponentPosition(loadLabelsButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.03f);
+        setComponentSize(loadLabelsButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
         add(loadLabelsButton);
 
         // Load images file.
@@ -141,7 +142,8 @@ public class Workbench extends JFrame {
                 imagesFilePath = chooser.getSelectedFile().getAbsolutePath();
             }
         });
-        setComponentSize(loadImagesButton, 140, 32);
+        setComponentPosition(loadImagesButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.07f);
+        setComponentSize(loadImagesButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
         add(loadImagesButton);
 
         // Load the training samples using the specified labels and images files.
@@ -157,11 +159,13 @@ public class Workbench extends JFrame {
                 e.printStackTrace();
             }
         });
-        setComponentSize(loadButton, 80, 32);
+        setComponentPosition(loadButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.11f);
+        setComponentSize(loadButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
         add(loadButton);
 
         preview = new ImagePreview(null);
-        setComponentSize(preview, 256, 256);
+        setComponentPosition(preview, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.94f - WINDOW_WIDTH * 0.75f);
+        setComponentSize(preview, WINDOW_WIDTH * 0.75f, WINDOW_WIDTH * 0.75f);
         preview.setVisible(true);
         add(preview);
     }
@@ -196,17 +200,20 @@ public class Workbench extends JFrame {
         return store;
     }
 
-// ===========================================================
-// Override Methods
-// ===========================================================
+    // ===========================================================
+    // Override Methods
+    // ===========================================================
 
 
-// ===========================================================
-// Methods
-// ===========================================================
+    // ===========================================================
+    // Methods
+    // ===========================================================
 
-    public void setComponentSize(JComponent component, int width, int height) {
-        Dimension dim = new Dimension(width, height);
+    public void setComponentPosition(JComponent component, float x, float y) {
+        component.setLocation((int)x, (int)y);
+    }
+    public void setComponentSize(JComponent component, float width, float height) {
+        Dimension dim = new Dimension((int) width, (int) height);
         component.setPreferredSize(dim);
         component.setSize(dim);
     }
@@ -216,5 +223,4 @@ public class Workbench extends JFrame {
     // ===========================================================
 
     ;;
-
 }
