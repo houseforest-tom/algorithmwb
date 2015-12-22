@@ -79,19 +79,27 @@ public class Workbench extends JFrame {
             }
         }, 0, 250, TimeUnit.MILLISECONDS);
 
-        // Create & open DB storage.
-        String dbPath = "images.dbs";
+        // Create new or open existing database.
+        String dbPath = "res/images.dbs";
+        boolean dbExists = new File(dbPath).exists();
+
+        if (dbExists) System.out.println("Using existing database " + dbPath);
+        else System.out.println("Creating new database " + dbPath);
         store = StorageFactory.getInstance().createStorage();
         store.open(dbPath, 1024);
         db = new Database(store, false);
+        if (dbExists) System.out.println("Loaded " + db.getRecords(ImageValue.class).size() + " images.");
+
 
         // Window was closed.
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent event) {
-                store.close();
-                System.exit(0);
-            }
-        });
+                              public void windowClosing(WindowEvent event) {
+                                  store.close();
+                                  System.exit(0);
+                              }
+                          }
+
+        );
     }
 
     /**
@@ -158,27 +166,27 @@ public class Workbench extends JFrame {
         add(preview);
     }
 
-    // ===========================================================
-    // Constants
-    // ===========================================================
+// ===========================================================
+// Constants
+// ===========================================================
 
     ;;
 
-    // ===========================================================
-    // Fields
-    // ===========================================================
+// ===========================================================
+// Fields
+// ===========================================================
 
     ;;
 
-    // ===========================================================
-    // Constructors
-    // ===========================================================
+// ===========================================================
+// Constructors
+// ===========================================================
 
     ;;
 
-    // ===========================================================
-    // Getter & Setter
-    // ===========================================================
+// ===========================================================
+// Getter & Setter
+// ===========================================================
 
     public Database getDatabase() {
         return db;
@@ -188,14 +196,14 @@ public class Workbench extends JFrame {
         return store;
     }
 
-    // ===========================================================
-    // Override Methods
-    // ===========================================================
+// ===========================================================
+// Override Methods
+// ===========================================================
 
 
-    // ===========================================================
-    // Methods
-    // ===========================================================
+// ===========================================================
+// Methods
+// ===========================================================
 
     public void setComponentSize(JComponent component, int width, int height) {
         Dimension dim = new Dimension(width, height);
