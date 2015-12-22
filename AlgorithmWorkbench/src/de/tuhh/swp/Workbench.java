@@ -52,6 +52,7 @@ public class Workbench extends JFrame {
 
     // Image preview.
     private ImagePreview preview;
+    private JLabel previewLabel;
     int previewImageId = 0;
 
     /**
@@ -79,10 +80,12 @@ public class Workbench extends JFrame {
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(() -> {
             if (images != null) {
-                preview.setImage(images[previewImageId++]);
+                ImageValue img = images[previewImageId++];
+                preview.setImage(img);
                 preview.repaint();
+                previewLabel.setText("Labelled as: " + (int)img.getLabel());
             }
-        }, 0, 250, TimeUnit.MILLISECONDS);
+        }, 0, 500, TimeUnit.MILLISECONDS);
 
         // Create new or open existing database.
         String dbPath = "res/images.dbs";
@@ -164,10 +167,16 @@ public class Workbench extends JFrame {
         add(loadButton);
 
         preview = new ImagePreview(null);
-        setComponentPosition(preview, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.94f - WINDOW_WIDTH * 0.75f);
+        setComponentPosition(preview, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.92f - WINDOW_WIDTH * 0.75f);
         setComponentSize(preview, WINDOW_WIDTH * 0.75f, WINDOW_WIDTH * 0.75f);
         preview.setVisible(true);
         add(preview);
+
+        previewLabel = new JLabel("Labelled as: -");
+        setComponentPosition(previewLabel, WINDOW_WIDTH * 0.38f, WINDOW_HEIGHT * 0.92f);
+        setComponentSize(previewLabel, WINDOW_WIDTH * 0.75f, 16);
+        previewLabel.setVisible(true);
+        add(previewLabel);
     }
 
 // ===========================================================
