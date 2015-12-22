@@ -70,6 +70,7 @@ public class Workbench extends JFrame {
     public Workbench() {
         initialize();
 
+        // Preview loaded images.
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(() -> {
             if (images != null) {
@@ -78,17 +79,17 @@ public class Workbench extends JFrame {
             }
         }, 0, 250, TimeUnit.MILLISECONDS);
 
+        // Create & open DB storage.
         String dbPath = "images.dbs";
         store = StorageFactory.getInstance().createStorage();
         store.open(dbPath, 1024);
         db = new Database(store, false);
 
+        // Window was closed.
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event) {
                 store.close();
-                int i = JOptionPane.showConfirmDialog(null, "Seguro que quiere salir?");
-                if (i == 0)
-                    System.exit(0);//cierra aplicacion
+                System.exit(0);
             }
         });
     }

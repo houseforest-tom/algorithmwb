@@ -8,7 +8,8 @@
 package de.tuhh.swp;
 
 import org.garret.perst.IterableIterator;
-import org.garret.perst.Iterator;
+
+import java.util.ArrayList;
 
 /**
  * TODO: Document this type.
@@ -76,9 +77,10 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
             workbench.getDatabase().addRecord(image);
         }
 
-        Iterator iter = workbench.getDatabase().<ImageValue>select(ImageValue.class, "label = 0");
-        while (iter.hasNext()) {
-            System.out.println("Retrieved image from DB w/ label: " + ((ImageValue) (iter.next())).getLabel());
+        long count = 0;
+        for(int label = 0; label <= 9; ++label){
+            count = getLabelledImages(label).size();
+            System.out.println("Retrieved " + count + " images labelled '" + label + " from database.");
         }
 
         return images;
@@ -93,7 +95,9 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
     // Methods
     // ===========================================================
 
-    ;;
+    private ArrayList<ImageValue> getLabelledImages(int label){
+        return workbench.getDatabase().<ImageValue>select(ImageValue.class, "label = " + label).toList();
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes

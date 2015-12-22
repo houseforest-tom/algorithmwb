@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="perst">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/AlgorithmWorkbench/lib/perst/lib/perst.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
