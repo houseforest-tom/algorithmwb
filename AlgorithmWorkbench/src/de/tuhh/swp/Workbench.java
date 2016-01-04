@@ -43,6 +43,7 @@ public class Workbench extends JFrame {
     private JButton loadImagesButton;
     private JButton loadButton;
     private JButton knnButton;
+    private JButton kmeanButton;
 
     // Selected resource paths.
     private String labelsFilePath;
@@ -202,6 +203,23 @@ public class Workbench extends JFrame {
         setComponentPosition(knnButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.15f);
         setComponentSize(knnButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
         add(knnButton);
+
+        kmeanButton = new JButton("Perform KMean");
+        kmeanButton.addActionListener((ActionEvent event) -> {
+            KMean kmean = new KMean(20, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
+            LearningData learnset = new LearningData();
+            for(int i=0; i<60000; ++i){
+                KMeanImageValue image = new KMeanImageValue(images[i].getDefinition());
+                image.setPixels(images[i].getPixels());
+                learnset.add(image);
+            }
+            System.out.println("Created set of learning data.");
+            kmean.feed(0,0,learnset);
+            System.out.println("Fed KMean Algorithm.");
+        });
+        setComponentPosition(kmeanButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.19f);
+        setComponentSize(kmeanButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
+        add(kmeanButton);
     }
 
     // ===========================================================

@@ -26,7 +26,7 @@ public class ImageValue extends Persistent {
     // ===========================================================
 
     private ImageDefinition definition;
-    private byte[] pixels;
+    protected byte[] pixels;
     private byte label;
 
     // ===========================================================
@@ -62,12 +62,16 @@ public class ImageValue extends Persistent {
         }
     }
 
-    public double[] getPixels() {
+    public double[] getTreeLocation() {
         double[] p = new double[pixels.length];
         for (int i = 0; i < pixels.length; ++i) {
             p[i] = (double)pixels[i];
         }
         return p;
+    }
+
+    public byte[] getPixels() {
+        return pixels;
     }
 
     public ImageDefinition getDefinition() {

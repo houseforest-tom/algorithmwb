@@ -57,5 +57,8 @@ public abstract class AbstractAlgorithm {
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	;;
+	public enum DistanceMeasure {
+		Manhattan,
+		Euclidean
+	}
 }
