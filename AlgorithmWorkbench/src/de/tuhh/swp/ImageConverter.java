@@ -80,7 +80,7 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
         long count = 0;
         for(int label = 0; label <= 9; ++label){
             count = getLabelledImages(label).size();
-            System.out.println("Retrieved " + count + " images labelled '" + label + " from database.");
+            System.out.println("Retrieved " + count + " images labelled '" + label + "' from database.");
         }
 
         return images;

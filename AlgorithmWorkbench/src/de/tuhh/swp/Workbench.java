@@ -42,6 +42,7 @@ public class Workbench extends JFrame {
     private JButton loadLabelsButton;
     private JButton loadImagesButton;
     private JButton loadButton;
+    private JButton knnButton;
 
     // Selected resource paths.
     private String labelsFilePath;
@@ -169,37 +170,61 @@ public class Workbench extends JFrame {
         preview = new ImagePreview(null);
         setComponentPosition(preview, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.92f - WINDOW_WIDTH * 0.75f);
         setComponentSize(preview, WINDOW_WIDTH * 0.75f, WINDOW_WIDTH * 0.75f);
-        preview.setVisible(true);
         add(preview);
 
         previewLabel = new JLabel("Labelled as: -");
         setComponentPosition(previewLabel, WINDOW_WIDTH * 0.38f, WINDOW_HEIGHT * 0.92f);
         setComponentSize(previewLabel, WINDOW_WIDTH * 0.75f, 16);
-        previewLabel.setVisible(true);
         add(previewLabel);
+
+        knnButton = new JButton("Perform KNN");
+        knnButton.addActionListener((ActionEvent event) -> {
+            KNN knn = new KNN(5, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
+            LearningData learnset = new LearningData();
+            for(int i=0; i<60000; ++i){
+                learnset.add(images[i]);
+            }
+            System.out.println("Created set of learning data.");
+            knn.feed(learnset);
+            System.out.println("Fed KD-tree.");
+            int attempts = 128;
+            int correctGuesses = 0;
+            int index;
+            for(int i=0; i<attempts; ++i){
+                index = (int)(Math.random() * images.length);
+                if(knn.evaluate(images[index]) == images[index].getLabel()){
+                    correctGuesses++;
+                }
+                System.out.println("Finished evaluation #" + i);
+            }
+            System.out.println("Guessed " + (double)correctGuesses / (double)(attempts) * 100.0 + "% correctly.");
+        });
+        setComponentPosition(knnButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.15f);
+        setComponentSize(knnButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
+        add(knnButton);
     }
 
-// ===========================================================
-// Constants
-// ===========================================================
+    // ===========================================================
+    // Constants
+    // ===========================================================
 
-    ;;
+        ;;
 
-// ===========================================================
-// Fields
-// ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-    ;;
+        ;;
 
-// ===========================================================
-// Constructors
-// ===========================================================
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-    ;;
+        ;;
 
-// ===========================================================
-// Getter & Setter
-// ===========================================================
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
 
     public Database getDatabase() {
         return db;

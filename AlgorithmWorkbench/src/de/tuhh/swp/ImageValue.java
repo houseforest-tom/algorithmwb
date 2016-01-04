@@ -62,8 +62,12 @@ public class ImageValue extends Persistent {
         }
     }
 
-    public byte[] getPixels() {
-        return pixels;
+    public double[] getPixels() {
+        double[] p = new double[pixels.length];
+        for (int i = 0; i < pixels.length; ++i) {
+            p[i] = (double)pixels[i];
+        }
+        return p;
     }
 
     public ImageDefinition getDefinition() {

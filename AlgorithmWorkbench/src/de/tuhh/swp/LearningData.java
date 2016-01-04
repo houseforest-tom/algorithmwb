@@ -8,10 +8,12 @@
 
 package de.tuhh.swp;
 
+import java.util.ArrayList;
+
 /**
  * TODO: Add type documentation here.
  */
-public class LearningData {
+public class LearningData extends ArrayList<ImageValue> {
 
 	public LearningData() {
 		// TODO Auto-generated constructor stub
