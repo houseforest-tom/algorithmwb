@@ -65,12 +65,12 @@ public class KNN extends AbstractAlgorithm {
 
 	public void feed(LearningData data){
 		for(ImageValue sample : data){
-			tree.addPoint(sample.getTreeLocation(), sample.getLabel());
+			tree.addPoint(sample.getPixels(), sample.getLabel());
 		}
 	}
 
 	public byte evaluate(ImageValue image){
-		List<KdTree.Entry<Byte>> neighbours = tree.nearestNeighbor(image.getTreeLocation(), this.k, false);
+		List<KdTree.Entry<Byte>> neighbours = tree.nearestNeighbor(image.getPixels(), this.k, false);
 		int[] labelCounts = new int[10];
 		for(KdTree.Entry<Byte> label : neighbours){
 			++labelCounts[label.value];

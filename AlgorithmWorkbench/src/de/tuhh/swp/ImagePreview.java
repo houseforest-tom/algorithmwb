@@ -30,7 +30,7 @@ public class ImagePreview extends JPanel {
             int x, y;
             for (y = 0; y < imageHeight; ++y) {
                 for (x = 0; x < imageWidth; ++x) {
-                    color = Byte.toUnsignedInt(image.getPixel(x, y));
+                    color = (int)image.getPixel(x, y);
                     g.setColor(new Color(color, color, color));
                     g.fillRect(x * xScale, y * yScale, xScale, yScale);
                 }

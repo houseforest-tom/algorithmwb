@@ -61,17 +61,17 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
 
         int width = AbstractConverter.bytesToInt(external, 12);
         int height = AbstractConverter.bytesToInt(external, 8);
+        ImageDefinition definition = new ImageDefinition(width, height);
         ImageValue image;
 
         int x, y; // Coords relative to current image.
         int offset = 16; // Offset in byte array.
 
         for (int i = 0; i < numImages; ++i) {
-            ImageDefinition definition = new ImageDefinition(width, height);
             image = images[i] = new ImageValue(definition, labels[i]);
             for (y = 0; y < height; ++y) {
                 for (x = 0; x < width; ++x) {
-                    image.setPixel(x, y, external[offset++]);
+                    image.setPixel(x, y, (double)Byte.toUnsignedInt(external[offset++]));
                 }
             }
             workbench.getDatabase().addRecord(image);

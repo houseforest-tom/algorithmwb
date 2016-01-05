@@ -10,6 +10,8 @@ package de.tuhh.swp;
 
 import org.garret.perst.Persistent;
 
+import java.util.Arrays;
+
 /**
  * TODO: Add type documentation here.
  */
@@ -26,7 +28,7 @@ public class ImageValue extends Persistent {
     // ===========================================================
 
     private ImageDefinition definition;
-    protected byte[] pixels;
+    private double[] pixels;
     private byte label;
 
     // ===========================================================
@@ -35,7 +37,7 @@ public class ImageValue extends Persistent {
 
     public ImageValue(ImageDefinition definition, byte label) {
         this.definition = definition;
-        this.pixels = new byte[definition.width * definition.height];
+        this.pixels = new double[definition.width * definition.height];
         this.label = label;
     }
 
@@ -43,34 +45,19 @@ public class ImageValue extends Persistent {
     // Getter & Setter
     // ===========================================================
 
-    public byte getPixel(int x, int y) {
+    public double getPixel(int x, int y) {
         return pixels[x + y * definition.width];
     }
 
-    public void setPixel(int x, int y, byte pixel) {
+    public void setPixel(int x, int y, double pixel) {
         pixels[x + y * definition.width] = pixel;
     }
 
-    public void setPixels(byte[] pixels) {
-        if (pixels.length != this.pixels.length) {
-            System.err.println("Expected " + this.pixels.length + " pixel values, but got " + pixels.length);
-            System.exit(-1);
-        }
-
-        for (int i = 0; i < pixels.length; ++i) {
-            this.pixels[i] = pixels[i];
-        }
+    public void setPixels(double[] pixels) {
+        this.pixels = pixels;
     }
 
-    public double[] getTreeLocation() {
-        double[] p = new double[pixels.length];
-        for (int i = 0; i < pixels.length; ++i) {
-            p[i] = (double)pixels[i];
-        }
-        return p;
-    }
-
-    public byte[] getPixels() {
+    public double[] getPixels() {
         return pixels;
     }
 

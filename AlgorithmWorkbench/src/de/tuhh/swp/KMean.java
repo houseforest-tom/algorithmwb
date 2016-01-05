@@ -8,7 +8,9 @@
 
 package de.tuhh.swp;
 
-import java.util.List;
+import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 /**
  * TODO: Add type documentation here.
@@ -16,82 +18,188 @@ import java.util.List;
 public class KMean extends AbstractAlgorithm {
 
 
+    // ===========================================================
+    // Constants
+    // ===========================================================
 
-	// ===========================================================
-	// Constants
-	// ===========================================================
+    ;;
 
-	;;
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
+    public class KMeanCluster extends ImageValue {
+        private LinkedList<ImageValue> children;
 
-	// k
-	private int k;
+        public KMeanCluster(ImageDefinition imageDefinition) {
+            super(imageDefinition, (byte)0xff);
+            this.children = new LinkedList<>();
+        }
 
-	// Stored label values.
-	private KdTree<KMeanImageValue> tree;
+        public void randomizeLocation(double min, double max) {
+            double[] location = new double[getDefinition().width * getDefinition().height];
+            for (int i = 0; i < location.length; ++i) {
+                location[i] = min + (max - min) * Math.random();
+            }
+            setPixels(location);
+        }
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
+        public LinkedList<ImageValue> getChildren() {
+            return children;
+        }
 
-	public KMean(int k, ImageDefinition imageDefinition, DistanceMeasure distanceMeasure) {
-		this.k = k;
-		if (distanceMeasure == DistanceMeasure.Euclidean) {
-			this.tree = new KdTree.SqrEuclid<KMeanImageValue>(imageDefinition.height * imageDefinition.width, null);
-		}
-		else{
-			this.tree = new KdTree.Manhattan<KMeanImageValue>(imageDefinition.height * imageDefinition.width, null);
-		}
-	}
+        public double updateLocation() {
+            double[] location = getPixels();
+            double[] prevLocation = Arrays.copyOf(location, location.length);
 
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
+            if (children.size() > 0) {
+                // Reset location to zero.
+                int i = 0;
+                for (i = 0; i < location.length; ++i) {
+                    location[i] = 0.0;
+                }
 
-	;;
+                // Sum up children locations.
+                double[] childLocation;
+                for (ImageValue child : children) {
+                    childLocation = child.getPixels();
+                    for (i = 0; i < location.length; ++i) {
+                        location[i] += childLocation[i];
+                    }
+                }
 
-	// ===========================================================
-	// Override Methods
-	// ===========================================================
+                // Average.
+                for (i = 0; i < location.length; ++i) {
+                    location[i] /= children.size();
+                }
+            }
 
-	;;
+            // Return distance that the cluster moved.
+            return dist(prevLocation, location);
+        }
+    }
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
+    // k <=> Number of clusters to look for.
+    private int k;
 
-	public void feed(int iterations, float error, LearningData learningData){
-		if(learningData.size() < k) {
-			//TODO
-			System.exit(-1);
-		}else{
-			for (int i = 0; i < k; ++i){
-				KMeanImageValue image = (KMeanImageValue) learningData.remove((int) (Math.random() * learningData.size()));
-				tree.addPoint(image.getTreeLocation(), image);
-			}
-			int i;
-			int iteration = 0;
-			while(iteration++ < iterations){
-				//Expectation
-				for(i = 0; i < learningData.size(); ++i){
-					KMeanImageValue sample = (KMeanImageValue) learningData.get(i);
-					KMeanImageValue prototype = tree.nearestNeighbor(sample.getTreeLocation(), 1, false).get(0).value;
-					sample.setPrototype(prototype);
-				}
-				//Maximization
+    // Clusters.
+    private KMeanCluster[] clusters;
 
-				break;
-			}
-		}
+    // Way to measure the distance between data points.
+    private DistanceMeasure distanceMeasure;
 
-	}
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
+    // Initialize k clusters at random positions.
+    public KMean(int k, ImageDefinition imageDefinition, DistanceMeasure distanceMeasure) {
+        this.k = k;
+        this.distanceMeasure = distanceMeasure;
+        this.clusters = new KMeanCluster[k];
+        for(int i=0; i<k; ++i){
+            this.clusters[i] = new KMeanCluster(imageDefinition);
+            this.clusters[i].randomizeLocation(0, 255);
+        }
+    }
 
-	;;
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
+
+    public KMeanCluster[] getClusters(){
+        return clusters;
+    }
+
+    // ===========================================================
+    // Override Methods
+    // ===========================================================
+
+    ;;
+
+    // ===========================================================
+    // Methods
+    // ===========================================================
+
+    // Compute the distance between points a and b.
+    private double dist(double[] a, double[] b) {
+        if (a.length != b.length) {
+            //TODO:
+            System.exit(-1);
+        }
+
+        double distance = 0.0;
+        if (distanceMeasure == DistanceMeasure.Euclidean) {
+            for (int i = 0; i < a.length; ++i) {
+                distance += (a[i] - b[i]) * (a[i] - b[i]);
+            }
+            distance = Math.sqrt(distance);
+        } else {
+            for (int i = 0; i < a.length; i++) {
+                double diff = (a[i] - b[i]);
+                if (!Double.isNaN(diff)) {
+                    distance += (diff < 0) ? -diff : diff;
+                }
+            }
+        }
+        return distance;
+    }
+
+    public void feed(int iterations, double error, LearningData learningData) {
+        int iteration;               // Current iteration #.
+        int clusterId;               // Current cluster #.
+        int nearestClusterId;        // Nearest cluster #.
+        double minClusterDistance;   // Distance to nearest already checked cluster.
+        double clusterDistance;      // Distance to currently checked cluster.
+        double[] clusterMovement;    // Distance clusters were moved this iteration.
+        boolean earlyOut;            // Flag determining whether the algorithm will finish after the current iteration.
+
+        clusterMovement = new double[k];
+        for (iteration = 0; iteration < iterations; ++iteration) {
+            System.out.println("KMean Iteration " + (iteration + 1) + ".");
+
+            // Remove all children from clusters.
+            for(KMeanCluster cluster : clusters){
+                cluster.getChildren().clear();
+            }
+
+            for(ImageValue sample : learningData){
+                minClusterDistance = Double.MAX_VALUE;
+
+                // Find nearest cluster.
+                nearestClusterId = -1;
+                for (clusterId = 0; clusterId < k; ++clusterId) {
+                    clusterDistance = dist(sample.getPixels(), clusters[clusterId].getPixels());
+                    if (clusterDistance < minClusterDistance) {
+                        nearestClusterId = clusterId;
+                        minClusterDistance = clusterDistance;
+                    }
+                }
+
+                // Add sample to nearest cluster.
+                clusters[nearestClusterId].getChildren().add(sample);
+            }
+
+            // Reposition clusters and determine early-out condition.
+            earlyOut = true;
+            for (clusterId = 0; clusterId < k; ++clusterId) {
+                if((clusterMovement[clusterId] = clusters[clusterId].updateLocation()) > error){
+                    earlyOut = false;
+                }
+            }
+
+            if(earlyOut){
+                System.out.println("KMean early-out condition met.");
+                break;
+            }
+        }
+
+        System.out.println("KMean algorithm finished.");
+    }
+
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
+
+    ;;
 }

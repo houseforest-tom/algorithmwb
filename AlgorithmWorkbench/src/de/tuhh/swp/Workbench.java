@@ -52,11 +52,6 @@ public class Workbench extends JFrame {
     // Loaded images.
     private ImageValue[] images;
 
-    // Image preview.
-    private ImagePreview preview;
-    private JLabel previewLabel;
-    int previewImageId = 0;
-
     /**
      * Launch the application.
      */
@@ -77,17 +72,6 @@ public class Workbench extends JFrame {
      */
     public Workbench() {
         initialize();
-
-        // Preview loaded images.
-        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-        exec.scheduleAtFixedRate(() -> {
-            if (images != null) {
-                ImageValue img = images[previewImageId++];
-                preview.setImage(img);
-                preview.repaint();
-                previewLabel.setText("Labelled as: " + (int)img.getLabel());
-            }
-        }, 0, 500, TimeUnit.MILLISECONDS);
 
         // Create new or open existing database.
         String dbPath = "res/images.dbs";
@@ -168,16 +152,6 @@ public class Workbench extends JFrame {
         setComponentSize(loadButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
         add(loadButton);
 
-        preview = new ImagePreview(null);
-        setComponentPosition(preview, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.92f - WINDOW_WIDTH * 0.75f);
-        setComponentSize(preview, WINDOW_WIDTH * 0.75f, WINDOW_WIDTH * 0.75f);
-        add(preview);
-
-        previewLabel = new JLabel("Labelled as: -");
-        setComponentPosition(previewLabel, WINDOW_WIDTH * 0.38f, WINDOW_HEIGHT * 0.92f);
-        setComponentSize(previewLabel, WINDOW_WIDTH * 0.75f, 16);
-        add(previewLabel);
-
         knnButton = new JButton("Perform KNN");
         knnButton.addActionListener((ActionEvent event) -> {
             KNN knn = new KNN(5, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
@@ -186,8 +160,10 @@ public class Workbench extends JFrame {
                 learnset.add(images[i]);
             }
             System.out.println("Created set of learning data.");
+            System.out.println("Feeding KNN algorithm.");
             knn.feed(learnset);
-            System.out.println("Fed KD-tree.");
+
+            System.out.println("Evaluating test samples.");
             int attempts = 128;
             int correctGuesses = 0;
             int index;
@@ -196,7 +172,7 @@ public class Workbench extends JFrame {
                 if(knn.evaluate(images[index]) == images[index].getLabel()){
                     correctGuesses++;
                 }
-                System.out.println("Finished evaluation #" + i);
+                System.out.println("Finished evaluation (" + i + ").");
             }
             System.out.println("Guessed " + (double)correctGuesses / (double)(attempts) * 100.0 + "% correctly.");
         });
@@ -209,13 +185,25 @@ public class Workbench extends JFrame {
             KMean kmean = new KMean(20, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
             LearningData learnset = new LearningData();
             for(int i=0; i<60000; ++i){
-                KMeanImageValue image = new KMeanImageValue(images[i].getDefinition());
-                image.setPixels(images[i].getPixels());
-                learnset.add(image);
+                learnset.add(images[i]);
             }
             System.out.println("Created set of learning data.");
-            kmean.feed(0,0,learnset);
-            System.out.println("Fed KMean Algorithm.");
+            System.out.println("Feeding KMean Algorithm.");
+            kmean.feed(64, 0.01, learnset);
+
+            KMean.KMeanCluster[] clusters = kmean.getClusters();
+            for(int cluster = 0; cluster < clusters.length; ++cluster){
+                int imagesPerRow = 5;
+                ImagePreview preview = new ImagePreview(clusters[cluster]);
+                setComponentPosition(
+                        preview,
+                        WINDOW_WIDTH * (0.125f + (cluster % imagesPerRow) * 0.75f / imagesPerRow),
+                        WINDOW_HEIGHT * 0.27f + (cluster / imagesPerRow) * WINDOW_WIDTH * 0.75f / imagesPerRow
+                );
+                setComponentSize(preview, WINDOW_WIDTH * 0.75f / imagesPerRow, WINDOW_WIDTH * 0.75f / imagesPerRow);
+                add(preview);
+                preview.repaint();
+            }
         });
         setComponentPosition(kmeanButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.19f);
         setComponentSize(kmeanButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
