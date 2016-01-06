@@ -10,20 +10,13 @@ package de.tuhh.swp;
 import org.garret.perst.Database;
 import org.garret.perst.Storage;
 import org.garret.perst.StorageFactory;
-import org.garret.perst.IterableIterator;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.*;
 
 /**
  * TODO: Document this type.
@@ -51,6 +44,12 @@ public class Workbench extends JFrame {
 
     // Loaded images.
     private ImageValue[] images;
+    private LearningData learnset;
+
+    private KMean kmean;
+    private ImagePreview[] kmeanClusterViews;
+    private JMenuBar menubar;
+    private JPanel content;
 
     /**
      * Launch the application.
@@ -71,12 +70,13 @@ public class Workbench extends JFrame {
      * Create the application.
      */
     public Workbench() {
-        initialize();
+
+        // Create empty learnset.
+        learnset = new LearningData();
 
         // Create new or open existing database.
         String dbPath = "res/images.dbs";
         boolean dbExists = new File(dbPath).exists();
-
         if (dbExists) System.out.println("Using existing database " + dbPath);
         else System.out.println("Creating new database " + dbPath);
         store = StorageFactory.getInstance().createStorage();
@@ -84,10 +84,11 @@ public class Workbench extends JFrame {
         db = new Database(store, false);
         if (dbExists) {
             int count = db.getRecords(ImageValue.class).size();
-            images = db.getRecords(ImageValue.class).toList().toArray(new ImageValue[count]);
+            setImages(db.getRecords(ImageValue.class).toList().toArray(new ImageValue[count]));
             System.out.println("Loaded " + count + " images.");
         }
 
+        initialize();
 
         // Window was closed.
         addWindowListener(new WindowAdapter() {
@@ -104,61 +105,15 @@ public class Workbench extends JFrame {
     private void initialize() {
 
         setTitle("Algorithm Workbench");
-        setBounds(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        setLayout(null);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Load labels file.
-        loadLabelsButton = new JButton("Select Labels");
-        loadLabelsButton.addActionListener((ActionEvent event) -> {
-            JFileChooser chooser = new JFileChooser(new File("./"));
-            chooser.setVisible(true);
-            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                labelsFilePath = chooser.getSelectedFile().getAbsolutePath();
-            }
-        });
-        setComponentPosition(loadLabelsButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.03f);
-        setComponentSize(loadLabelsButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        add(loadLabelsButton);
-
-        // Load images file.
-        loadImagesButton = new JButton("Select Images");
-        loadImagesButton.addActionListener((ActionEvent event) -> {
-            JFileChooser chooser = new JFileChooser(new File("./"));
-            chooser.setVisible(true);
-            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                imagesFilePath = chooser.getSelectedFile().getAbsolutePath();
-            }
-        });
-        setComponentPosition(loadImagesButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.07f);
-        setComponentSize(loadImagesButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        add(loadImagesButton);
-
-        // Load the training samples using the specified labels and images files.
-        loadButton = new JButton("Load");
-        loadButton.addActionListener((ActionEvent event) -> {
-            try {
-                byte[] labelFile = Files.readAllBytes(Paths.get(labelsFilePath));
-                byte[] labels = new LabelConverter().toInternal(labelFile);
-                byte[] imagesFile = Files.readAllBytes(Paths.get(imagesFilePath));
-                images = new ImageConverter(this, labels).toInternal(imagesFile);
-                System.out.println("Loaded " + images.length + " images.");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        setComponentPosition(loadButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.11f);
-        setComponentSize(loadButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        add(loadButton);
+        content = new JPanel();
+        content.setLayout(new BorderLayout());
 
         knnButton = new JButton("Perform KNN");
         knnButton.addActionListener((ActionEvent event) -> {
             KNN knn = new KNN(5, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
-            LearningData learnset = new LearningData();
-            for(int i=0; i<60000; ++i){
-                learnset.add(images[i]);
-            }
             System.out.println("Created set of learning data.");
             System.out.println("Feeding KNN algorithm.");
             knn.feed(learnset);
@@ -167,66 +122,77 @@ public class Workbench extends JFrame {
             int attempts = 128;
             int correctGuesses = 0;
             int index;
-            for(int i=0; i<attempts; ++i){
-                index = (int)(Math.random() * images.length);
-                if(knn.evaluate(images[index]) == images[index].getLabel()){
+            for (int i = 0; i < attempts; ++i) {
+                index = (int) (Math.random() * images.length);
+                if (knn.evaluate(images[index]) == images[index].getLabel()) {
                     correctGuesses++;
                 }
                 System.out.println("Finished evaluation (" + i + ").");
             }
-            System.out.println("Guessed " + (double)correctGuesses / (double)(attempts) * 100.0 + "% correctly.");
+            System.out.println("Guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
         });
-        setComponentPosition(knnButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.15f);
+        setComponentPosition(knnButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.04f);
         setComponentSize(knnButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        add(knnButton);
+        content.add(knnButton, BorderLayout.NORTH);
+
+        int k = 20;
+        if (images != null && images.length > 0) {
+            kmean = new KMean(k, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
+        }
 
         kmeanButton = new JButton("Perform KMean");
         kmeanButton.addActionListener((ActionEvent event) -> {
-            KMean kmean = new KMean(20, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
-            LearningData learnset = new LearningData();
-            for(int i=0; i<60000; ++i){
-                learnset.add(images[i]);
+            if (kmean == null) {
+                kmean = new KMean(k, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
             }
-            System.out.println("Created set of learning data.");
-            System.out.println("Feeding KMean Algorithm.");
-            kmean.feed(64, 0.01, learnset);
-
-            KMean.KMeanCluster[] clusters = kmean.getClusters();
-            for(int cluster = 0; cluster < clusters.length; ++cluster){
-                int imagesPerRow = 5;
-                ImagePreview preview = new ImagePreview(clusters[cluster]);
-                setComponentPosition(
-                        preview,
-                        WINDOW_WIDTH * (0.125f + (cluster % imagesPerRow) * 0.75f / imagesPerRow),
-                        WINDOW_HEIGHT * 0.27f + (cluster / imagesPerRow) * WINDOW_WIDTH * 0.75f / imagesPerRow
-                );
-                setComponentSize(preview, WINDOW_WIDTH * 0.75f / imagesPerRow, WINDOW_WIDTH * 0.75f / imagesPerRow);
-                add(preview);
-                preview.repaint();
+            kmean.iterate(learnset);
+            if (kmeanClusterViews == null) {
+                kmeanClusterViews = new ImagePreview[k];
+                for (int i = 0; i < k; ++i) {
+                    kmeanClusterViews[i] = new ImagePreview(kmean.getClusters()[i]);
+                    setComponentPosition(
+                            kmeanClusterViews[i],
+                            WINDOW_WIDTH * (0.125f + (i % 5) * 0.75f / 5),
+                            WINDOW_HEIGHT * 0.27f + (i / 5) * WINDOW_WIDTH * 0.75f / 5
+                    );
+                    setComponentSize(kmeanClusterViews[i], WINDOW_WIDTH * 0.75f / 5, WINDOW_WIDTH * 0.75f / 5);
+                    add(kmeanClusterViews[i]);
+                }
+            }
+            for (int i = 0; i < k; ++i) {
+                kmeanClusterViews[i].repaint();
             }
         });
         setComponentPosition(kmeanButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.19f);
         setComponentSize(kmeanButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        add(kmeanButton);
+        content.add(kmeanButton, BorderLayout.SOUTH);
+
+        // Setup menu bar.
+        menubar = new Menu(this);
+        setJMenuBar(menubar);
+
+        content.setVisible(true);
+        add(content);
+        pack();
     }
 
     // ===========================================================
     // Constants
     // ===========================================================
 
-        ;;
+    ;;
 
     // ===========================================================
     // Fields
     // ===========================================================
 
-        ;;
+    ;;
 
     // ===========================================================
     // Constructors
     // ===========================================================
 
-        ;;
+    ;;
 
     // ===========================================================
     // Getter & Setter
@@ -240,6 +206,26 @@ public class Workbench extends JFrame {
         return store;
     }
 
+    public void setImages(ImageValue[] images) {
+        this.images = images;
+        for (ImageValue image : this.images) {
+            learnset.add(image);
+        }
+    }
+
+    public JPanel getContent() {
+        return content;
+    }
+
+    public void setContent(JPanel content) {
+        this.remove(this.content);
+        this.content = content;
+        this.content.setVisible(true);
+        this.add(content);
+        this.pack();
+        this.repaint();
+    }
+
     // ===========================================================
     // Override Methods
     // ===========================================================
@@ -250,8 +236,9 @@ public class Workbench extends JFrame {
     // ===========================================================
 
     public void setComponentPosition(JComponent component, float x, float y) {
-        component.setLocation((int)x, (int)y);
+        component.setLocation((int) x, (int) y);
     }
+
     public void setComponentSize(JComponent component, float width, float height) {
         Dimension dim = new Dimension((int) width, (int) height);
         component.setPreferredSize(dim);
