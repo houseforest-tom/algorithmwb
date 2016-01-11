@@ -245,6 +245,24 @@ public class KMean extends AbstractAlgorithm {
         //System.out.println("KMean algorithm finished.");
     }
 
+    public byte evaluate(ImageValue image) {
+
+        // Find nearest cluster.
+        int nearestClusterId = -1;
+        double clusterDistance;
+        double minClusterDistance = Double.MAX_VALUE;
+
+        for (int clusterId = 0; clusterId < k; ++clusterId) {
+            clusterDistance = dist(image.getPixels(), clusters[clusterId].getPixels());
+            if (clusterDistance < minClusterDistance) {
+                nearestClusterId = clusterId;
+                minClusterDistance = clusterDistance;
+            }
+        }
+
+        return clusters[nearestClusterId].getLabel();
+    }
+
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================

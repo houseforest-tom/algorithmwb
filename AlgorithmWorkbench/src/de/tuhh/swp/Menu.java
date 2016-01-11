@@ -190,7 +190,7 @@ public class Menu extends JMenuBar {
                 learnset.add(images[i]);
             }
 
-            System.out.println("Feeding KNN algorithm " + learnset.size() + " learning samples...");
+            System.out.println("Feeding k-Nearest-Neighbour algorithm " + learnset.size() + " learning samples...");
             knn.feed(learnset);
 
             int attempts = (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue();
@@ -198,13 +198,13 @@ public class Menu extends JMenuBar {
             int offset = learnset.size();
             int end = Math.min(offset + attempts, images.length);
             attempts = end - offset; // Adjust attempt count.
-            System.out.println("Evaluating " + attempts + " samples with KNN algorithm...");
+            System.out.println("Evaluating " + attempts + " samples with k-Nearest-Neighbour algorithm...");
             for (int i = offset; i < end; ++i) {
                 if (knn.evaluate(images[i]) == images[i].getLabel()) {
                     correctGuesses++;
                 }
             }
-            System.out.println("KNN guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
+            System.out.println("k-Nearest-Neighbour guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
         });
 
         JPanel view = new JPanel();
@@ -249,23 +249,22 @@ public class Menu extends JMenuBar {
 
         // -------------------------------
 
+        ImageValue[] images = workbench.getImages();
+        LearningData learnset = new LearningData();
+        for (int i = 0; i < (int) ((SliderPanel) components.get("learningSamples")).getSliderValue(); ++i) {
+            learnset.add(images[i]);
+        }
+
         // Add button listeners.
         ((JButton) components.get("feedButton")).addActionListener((ActionEvent event) -> {
-
             KMean kmean;
-            ImageValue[] images = workbench.getImages();
             workbench.setKMeanAlgorithm(kmean = new KMean(
                     (int) ((SliderPanel) components.get("k")).getSliderValue(),
                     images[0].getDefinition(),
                     ((ArrayDropdown<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
             ));
 
-            LearningData learnset = new LearningData();
-            for (int i = 0; i < (int) ((SliderPanel) components.get("learningSamples")).getSliderValue(); ++i) {
-                learnset.add(images[i]);
-            }
-
-            System.out.println("Feeding KMean algorithm " + learnset.size() + " learning samples...");
+            System.out.println("Feeding k-Mean algorithm " + learnset.size() + " learning samples...");
             kmean.feed(
                     (int) ((SliderPanel) components.get("iterations")).getSliderValue(),
                     ((SliderPanel) components.get("minDelta")).getSliderValue(),
@@ -275,11 +274,25 @@ public class Menu extends JMenuBar {
             System.out.println("Finished searching " + kmean.getClusters().length + " clusters, please assign labels.");
 
             JFrame popup = new JFrame("Assign k-Mean Clusters");
-            //popup.setSize(Workbench.WINDOW_WIDTH, Workbench.WINDOW_HEIGHT);
             popup.add(createClusterAssignmentView());
             popup.setLocationRelativeTo(this);
             popup.pack();
             popup.setVisible(true);
+        });
+
+        ((JButton) components.get("performButton")).addActionListener((ActionEvent event) -> {
+            int attempts = (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue();
+            int correctGuesses = 0;
+            int offset = learnset.size();
+            int end = Math.min(offset + attempts, images.length);
+            attempts = end - offset; // Adjust attempt count.
+            System.out.println("Evaluating " + attempts + " samples with k-Mean algorithm...");
+            for (int i = offset; i < end; ++i) {
+                if (workbench.getKMeanAlgorithm().evaluate(images[i]) == images[i].getLabel()) {
+                    correctGuesses++;
+                }
+            }
+            System.out.println("k-Mean guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
         });
 
         JPanel view = new JPanel();
@@ -291,21 +304,6 @@ public class Menu extends JMenuBar {
             view.add(component.getValue());
         }
         return view;
-
-        /*
-        int attempts = (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue();
-        int correctGuesses = 0;
-        int offset = learnset.size();
-        int end = Math.min(offset + attempts, images.length);
-        attempts = end - offset; // Adjust attempt count.
-        System.out.println("Evaluating " + attempts + " samples with KNN algorithm...");
-        for (int i = offset; i < end; ++i) {
-            if (knn.evaluate(images[i]) == images[i].getLabel()) {
-                correctGuesses++;
-            }
-        }
-        System.out.println("KNN guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
-         */
     }
 
     private JPanel createClusterAssignmentView() {
@@ -322,7 +320,7 @@ public class Menu extends JMenuBar {
 
         // Position preview frames.
         int rowLen = 5;
-        JPanel[] rows = new JPanel[(int)Math.ceil(kmean.getClusters().length / (float)rowLen)];
+        JPanel[] rows = new JPanel[(int) Math.ceil(kmean.getClusters().length / (float) rowLen)];
         for (int row = 0; row < rows.length; ++row) {
             rows[row] = new JPanel();
             rows[row].setLayout(new FlowLayout());
