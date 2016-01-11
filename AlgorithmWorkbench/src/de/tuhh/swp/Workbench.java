@@ -100,11 +100,6 @@ public class Workbench extends JFrame {
         content = new JPanel();
         content.setLayout(new BorderLayout());
 
-        int k = 20;
-        if (images != null && images.length > 0) {
-            kmean = new KMean(k, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
-        }
-
         // Setup menu bar.
         menubar = new Menu(this);
         setJMenuBar(menubar);

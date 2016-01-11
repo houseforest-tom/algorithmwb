@@ -1,13 +1,14 @@
 package de.tuhh.swp;
 
+import javafx.scene.input.KeyCode;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -251,9 +252,6 @@ public class Menu extends JMenuBar {
 
         ImageValue[] images = workbench.getImages();
         LearningData learnset = new LearningData();
-        for (int i = 0; i < (int) ((SliderPanel) components.get("learningSamples")).getSliderValue(); ++i) {
-            learnset.add(images[i]);
-        }
 
         // Add button listeners.
         ((JButton) components.get("feedButton")).addActionListener((ActionEvent event) -> {
@@ -264,6 +262,12 @@ public class Menu extends JMenuBar {
                     ((ArrayDropdown<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
             ));
 
+            // Add learning samples.
+            learnset.clear();
+            for (int i = 0; i < (int) ((SliderPanel) components.get("learningSamples")).getSliderValue(); ++i) {
+                learnset.add(images[i]);
+            }
+
             System.out.println("Feeding k-Mean algorithm " + learnset.size() + " learning samples...");
             kmean.feed(
                     (int) ((SliderPanel) components.get("iterations")).getSliderValue(),
@@ -273,11 +277,8 @@ public class Menu extends JMenuBar {
             );
             System.out.println("Finished searching " + kmean.getClusters().length + " clusters, please assign labels.");
 
-            JFrame popup = new JFrame("Assign k-Mean Clusters");
-            popup.add(createClusterAssignmentView());
-            popup.setLocationRelativeTo(this);
-            popup.pack();
-            popup.setVisible(true);
+            createClusterAssignmentView().setVisible(true);
+
         });
 
         ((JButton) components.get("performButton")).addActionListener((ActionEvent event) -> {
@@ -285,14 +286,71 @@ public class Menu extends JMenuBar {
             int correctGuesses = 0;
             int offset = learnset.size();
             int end = Math.min(offset + attempts, images.length);
+            ArrayList<Map.Entry<ImageValue, Byte>> wrongGuesses = new ArrayList<>();
             attempts = end - offset; // Adjust attempt count.
             System.out.println("Evaluating " + attempts + " samples with k-Mean algorithm...");
+            byte guessedLabel;
             for (int i = offset; i < end; ++i) {
-                if (workbench.getKMeanAlgorithm().evaluate(images[i]) == images[i].getLabel()) {
+                if ((guessedLabel = workbench.getKMeanAlgorithm().evaluate(images[i])) == images[i].getLabel()) {
                     correctGuesses++;
+                } else {
+                    wrongGuesses.add(new HashMap.SimpleEntry<>(images[i], guessedLabel));
                 }
             }
-            System.out.println("k-Mean guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
+
+            JFrame resultsPage = new JFrame("Results of k-Mean test run.");
+            resultsPage.setLayout(new GridLayout(7, 1));
+            resultsPage.setFocusable(true);
+            resultsPage.add(new JLabel("Classifier Information"));
+            resultsPage.add(new JLabel("Algorithm: k-Mean"));
+            resultsPage.add(new JLabel("Used Learning Samples: " + learnset.size()));
+            String learnsetPartition = "(";
+            for (int i = 0; i <= 9; ++i) {
+                learnsetPartition += i + ": " + learnset.getSampleCount((byte) i);
+                if (i < 9) {
+                    learnsetPartition += ", ";
+                }
+            }
+            learnsetPartition += ")";
+            resultsPage.add(new JLabel(learnsetPartition));
+            resultsPage.add(new JLabel("Correct guesses: " + correctGuesses + " / " + attempts + " (" + (double) correctGuesses / (double) (attempts) * 100.0 + "%"));
+            if (correctGuesses < attempts) {
+                ImagePreview image = new ImagePreview(wrongGuesses.get(0).getKey(), 140);
+                JLabel imageResult = new JLabel("Image Label: " + wrongGuesses.get(0).getKey().getLabel() + ", Guessed Label: " + wrongGuesses.get(0).getValue());
+                resultsPage.add(image);
+                resultsPage.add(imageResult);
+                resultsPage.addKeyListener(new KeyListener() {
+                    private int imageId = 0;
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                            image.setImage(wrongGuesses.get((++imageId) % wrongGuesses.size()).getKey());
+                            imageResult.setText("Image Label: " + wrongGuesses.get(imageId).getKey().getLabel() + ", Guessed Label: " + wrongGuesses.get(imageId).getValue());
+                            imageResult.repaint();
+                            image.repaint();
+                        }
+                        else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                            if (imageId > 0) {
+                                image.setImage(wrongGuesses.get(--imageId).getKey());
+                                imageResult.setText("Image Label: " + wrongGuesses.get(imageId).getKey().getLabel() + ", Guessed Label: " + wrongGuesses.get(imageId).getValue());
+                                imageResult.repaint();
+                                image.repaint();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                    }
+                });
+            }
+            resultsPage.setLocationRelativeTo(this);
+            resultsPage.pack();
+            resultsPage.setVisible(true);
         });
 
         JPanel view = new JPanel();
@@ -306,7 +364,11 @@ public class Menu extends JMenuBar {
         return view;
     }
 
-    private JPanel createClusterAssignmentView() {
+    private JFrame createClusterAssignmentView() {
+
+        JFrame popup = new JFrame("Assign k-Mean Clusters");
+        popup.setLocationRelativeTo(this);
+
         KMean kmean = workbench.getKMeanAlgorithm();
         JPanel view = new JPanel();
         view.setLayout(new BoxLayout(view, BoxLayout.Y_AXIS));
@@ -332,6 +394,28 @@ public class Menu extends JMenuBar {
         }
 
         view.setVisible(true);
-        return view;
+        popup.add(view);
+
+        // Window was closed.
+        popup.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        popup.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent event) {
+                boolean complete = true;
+                for (int i = 0; i < kmean.getClusters().length; ++i) {
+                    if (kmean.getClusters()[i].getLabel() == (byte) 0xff) {
+                        complete = false;
+                    }
+                }
+                if (complete) {
+                    popup.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(popup, "Please assign labels to remaining clusters.", "Assignments missing!", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        popup.pack();
+
+        return popup;
     }
 }

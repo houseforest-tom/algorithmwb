@@ -96,4 +96,8 @@ public class ImagePreview extends JButton {
         assignFrame.pack();
         assignFrame.setVisible(true);
     }
+
+    public void setImage(ImageValue image) {
+        this.image = image;
+    }
 }
