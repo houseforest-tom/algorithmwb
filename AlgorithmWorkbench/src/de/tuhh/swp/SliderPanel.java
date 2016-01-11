@@ -8,9 +8,9 @@ import java.awt.*;
  * Created by Tom on 06.01.2016.
  */
 public class SliderPanel extends JPanel {
-    private JLabel nameLabel;
-    private JSlider slider;
-    private JLabel currentValueLabel;
+    protected JLabel nameLabel;
+    protected JSlider slider;
+    protected JLabel currentValueLabel;
 
     public SliderPanel(String label, int min, int max, int value) {
         setLayout(new FlowLayout());
@@ -19,7 +19,7 @@ public class SliderPanel extends JPanel {
         this.slider = new JSlider(min, max, value);
         this.currentValueLabel = new JLabel("" + value);
         this.slider.addChangeListener((ChangeEvent e) -> {
-            currentValueLabel.setText("" + slider.getValue());
+            currentValueLabel.setText("" + getSliderValue());
         });
 
         add(nameLabel);
@@ -29,7 +29,7 @@ public class SliderPanel extends JPanel {
         setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
-    public int getSliderValue(){
-        return slider.getValue();
+    public float getSliderValue() {
+        return (float) slider.getValue();
     }
 }

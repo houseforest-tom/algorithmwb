@@ -98,7 +98,6 @@ public class KMean extends AbstractAlgorithm {
         this.clusters = new KMeanCluster[k];
         for (int i = 0; i < k; ++i) {
             this.clusters[i] = new KMeanCluster(imageDefinition);
-            this.clusters[i].randomizeLocation(0, 255);
         }
     }
 
@@ -178,18 +177,34 @@ public class KMean extends AbstractAlgorithm {
         }
     }
 
-    public void feed(int iterations, double error, LearningData learningData) {
+    /**
+     * Feeds the KMean algorithm with its specified learning samples.
+     *
+     * @param iterations   Requested number of iterations.
+     * @param error        Minimum cluster movement per iterations. (Early-out)
+     * @param learningData Learning samples to use.
+     * @param rng          Whether to randomly place the initial clusters.
+     *                     If set to false, random samples from the learnset will be used for initialization.
+     */
+    public void feed(int iterations, double error, LearningData learningData, boolean rng) {
         int iteration;               // Current iteration #.
         int clusterId;               // Current cluster #.
         int nearestClusterId;        // Nearest cluster #.
         double minClusterDistance;   // Distance to nearest already checked cluster.
         double clusterDistance;      // Distance to currently checked cluster.
-        double[] clusterMovement;    // Distance clusters were moved this iteration.
         boolean earlyOut;            // Flag determining whether the algorithm will finish after the current iteration.
 
-        clusterMovement = new double[k];
+        for (int i = 0; i < this.clusters.length; ++i) {
+            if (rng) {
+                this.clusters[i].randomizeLocation(0, 255);
+            } else {
+                double[] px = learningData.get((int) (Math.random() * learningData.size())).getPixels();
+                this.clusters[i].setPixels(Arrays.copyOf(px, px.length));
+            }
+        }
+
         for (iteration = 0; iteration < iterations; ++iteration) {
-            System.out.println("KMean Iteration " + (iteration + 1) + ".");
+            //System.out.println("KMean Iteration " + (iteration + 1) + ".");
 
             // Remove all children from clusters.
             for (KMeanCluster cluster : clusters) {
@@ -216,18 +231,18 @@ public class KMean extends AbstractAlgorithm {
             // Reposition clusters and determine early-out condition.
             earlyOut = true;
             for (clusterId = 0; clusterId < k; ++clusterId) {
-                if ((clusterMovement[clusterId] = clusters[clusterId].updateLocation()) > error) {
+                if (clusters[clusterId].updateLocation() > error) {
                     earlyOut = false;
                 }
             }
 
             if (earlyOut) {
-                System.out.println("KMean early-out condition met.");
+                //System.out.println("KMean early-out condition met.");
                 break;
             }
         }
 
-        System.out.println("KMean algorithm finished.");
+        //System.out.println("KMean algorithm finished.");
     }
 
     // ===========================================================

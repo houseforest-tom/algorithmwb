@@ -13,7 +13,6 @@ import org.garret.perst.StorageFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -31,24 +30,17 @@ public class Workbench extends JFrame {
     private Database db;
     private Storage store;
 
-    // GUI items.
-    private JButton loadLabelsButton;
-    private JButton loadImagesButton;
-    private JButton loadButton;
-    private JButton knnButton;
-    private JButton kmeanButton;
-
-    // Selected resource paths.
-    private String labelsFilePath;
-    private String imagesFilePath;
-
     // Loaded images.
     private ImageValue[] images;
-    private LearningData learnset;
 
+    // Algorithm instances.
+    private KNN knn;
     private KMean kmean;
-    private ImagePreview[] kmeanClusterViews;
+
+    // Menu bar.
     private JMenuBar menubar;
+
+    // Content panel.
     private JPanel content;
 
     /**
@@ -70,9 +62,6 @@ public class Workbench extends JFrame {
      * Create the application.
      */
     public Workbench() {
-
-        // Create empty learnset.
-        learnset = new LearningData();
 
         // Create new or open existing database.
         String dbPath = "res/images.dbs";
@@ -111,61 +100,10 @@ public class Workbench extends JFrame {
         content = new JPanel();
         content.setLayout(new BorderLayout());
 
-        knnButton = new JButton("Perform KNN");
-        knnButton.addActionListener((ActionEvent event) -> {
-            KNN knn = new KNN(5, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
-            System.out.println("Created set of learning data.");
-            System.out.println("Feeding KNN algorithm.");
-            knn.feed(learnset);
-
-            System.out.println("Evaluating test samples.");
-            int attempts = 128;
-            int correctGuesses = 0;
-            int index;
-            for (int i = 0; i < attempts; ++i) {
-                index = (int) (Math.random() * images.length);
-                if (knn.evaluate(images[index]) == images[index].getLabel()) {
-                    correctGuesses++;
-                }
-                System.out.println("Finished evaluation (" + i + ").");
-            }
-            System.out.println("Guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
-        });
-        setComponentPosition(knnButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.04f);
-        setComponentSize(knnButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        content.add(knnButton, BorderLayout.NORTH);
-
         int k = 20;
         if (images != null && images.length > 0) {
             kmean = new KMean(k, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
         }
-
-        kmeanButton = new JButton("Perform KMean");
-        kmeanButton.addActionListener((ActionEvent event) -> {
-            if (kmean == null) {
-                kmean = new KMean(k, images[0].getDefinition(), KNN.DistanceMeasure.Manhattan);
-            }
-            kmean.iterate(learnset);
-            if (kmeanClusterViews == null) {
-                kmeanClusterViews = new ImagePreview[k];
-                for (int i = 0; i < k; ++i) {
-                    kmeanClusterViews[i] = new ImagePreview(kmean.getClusters()[i]);
-                    setComponentPosition(
-                            kmeanClusterViews[i],
-                            WINDOW_WIDTH * (0.125f + (i % 5) * 0.75f / 5),
-                            WINDOW_HEIGHT * 0.27f + (i / 5) * WINDOW_WIDTH * 0.75f / 5
-                    );
-                    setComponentSize(kmeanClusterViews[i], WINDOW_WIDTH * 0.75f / 5, WINDOW_WIDTH * 0.75f / 5);
-                    add(kmeanClusterViews[i]);
-                }
-            }
-            for (int i = 0; i < k; ++i) {
-                kmeanClusterViews[i].repaint();
-            }
-        });
-        setComponentPosition(kmeanButton, WINDOW_WIDTH * 0.125f, WINDOW_HEIGHT * 0.19f);
-        setComponentSize(kmeanButton, WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.03f);
-        content.add(kmeanButton, BorderLayout.SOUTH);
 
         // Setup menu bar.
         menubar = new Menu(this);
@@ -206,11 +144,12 @@ public class Workbench extends JFrame {
         return store;
     }
 
+    public ImageValue[] getImages() {
+        return images;
+    }
+
     public void setImages(ImageValue[] images) {
         this.images = images;
-        for (ImageValue image : this.images) {
-            learnset.add(image);
-        }
     }
 
     public JPanel getContent() {
@@ -226,6 +165,22 @@ public class Workbench extends JFrame {
         this.repaint();
     }
 
+    public void setKNNAlgorithm(KNN knn) {
+        this.knn = knn;
+    }
+
+    public KNN getKNNAlgorithm() {
+        return knn;
+    }
+
+    public void setKMeanAlgorithm(KMean kmean) {
+        this.kmean = kmean;
+    }
+
+    public KMean getKMeanAlgorithm() {
+        return kmean;
+    }
+
     // ===========================================================
     // Override Methods
     // ===========================================================
@@ -235,11 +190,11 @@ public class Workbench extends JFrame {
     // Methods
     // ===========================================================
 
-    public void setComponentPosition(JComponent component, float x, float y) {
+    public static void setComponentPosition(JComponent component, float x, float y) {
         component.setLocation((int) x, (int) y);
     }
 
-    public void setComponentSize(JComponent component, float width, float height) {
+    public static void setComponentSize(JComponent component, float width, float height) {
         Dimension dim = new Dimension((int) width, (int) height);
         component.setPreferredSize(dim);
         component.setSize(dim);

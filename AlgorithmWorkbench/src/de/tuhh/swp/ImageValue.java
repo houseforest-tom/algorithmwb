@@ -69,6 +69,10 @@ public class ImageValue extends Persistent {
         return label;
     }
 
+    public void setLabel(byte label) {
+        this.label = label;
+    }
+
     // ===========================================================
     // Override Methods
     // ===========================================================
