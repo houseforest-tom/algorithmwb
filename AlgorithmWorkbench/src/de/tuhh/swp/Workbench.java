@@ -7,6 +7,7 @@
  */
 package de.tuhh.swp;
 
+import net.miginfocom.swing.MigLayout;
 import org.garret.perst.Database;
 import org.garret.perst.Storage;
 import org.garret.perst.StorageFactory;
@@ -98,7 +99,7 @@ public class Workbench extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         content = new JPanel();
-        content.setLayout(new BorderLayout());
+        content.setLayout(new MigLayout());
 
         // Setup menu bar.
         menubar = new Menu(this);

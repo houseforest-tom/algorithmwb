@@ -1,5 +1,7 @@
 package de.tuhh.swp;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -79,18 +81,31 @@ public class ImagePreview extends JButton {
 
     private void onClick() {
         JFrame assignFrame = new JFrame("Assign Label");
-        assignFrame.setLayout(new FlowLayout(FlowLayout.CENTER));
+        assignFrame.setLayout(new MigLayout());
         assignFrame.setLocationRelativeTo(this);
         ImagePreview preview = new ImagePreview(this.image, this.getSize().width);
-        RadioButtonArray labelOptions = new RadioButtonArray(new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"});
-        labelOptions.setSelection("" + image.getLabel());
+        NumPadPanel numpad = new NumPadPanel();
+        numpad.setSelection("" + image.getLabel());
         JButton applyButton = new JButton("Assign");
         assignFrame.add(preview);
-        assignFrame.add(labelOptions);
-        assignFrame.add(applyButton);
+        assignFrame.add(numpad, "wrap 16");
+        assignFrame.add(applyButton, "span 2, growx");
+        assignFrame.setFocusable(true);
+        assignFrame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int code = e.getKeyCode();
+                if (code >= KeyEvent.VK_NUMPAD0 && code <= KeyEvent.VK_NUMPAD9) {
+                    int num = code - KeyEvent.VK_NUMPAD0;
+                    numpad.setSelection("" + num);
+                }else if(code == KeyEvent.VK_ENTER){
+                    applyButton.doClick();
+                }
+            }
+        });
         applyButton.addActionListener((ActionEvent e) -> {
             assignFrame.dispatchEvent(new WindowEvent(assignFrame, WindowEvent.WINDOW_CLOSING));
-            byte label = Byte.valueOf(labelOptions.getSelection());
+            byte label = Byte.valueOf(numpad.getSelection());
             this.image.setLabel(label);
         });
         assignFrame.pack();

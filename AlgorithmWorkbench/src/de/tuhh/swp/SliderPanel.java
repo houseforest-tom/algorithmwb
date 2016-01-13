@@ -1,5 +1,7 @@
 package de.tuhh.swp;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
@@ -13,7 +15,7 @@ public class SliderPanel extends JPanel {
     protected JLabel currentValueLabel;
 
     public SliderPanel(String label, int min, int max, int value) {
-        setLayout(new FlowLayout());
+        setLayout(new MigLayout("", "[100!]20[200!]20[70!]", ""));
 
         this.nameLabel = new JLabel(label + ": ");
         this.slider = new JSlider(min, max, value);
@@ -25,8 +27,6 @@ public class SliderPanel extends JPanel {
         add(nameLabel);
         add(slider);
         add(currentValueLabel);
-
-        setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
     public float getSliderValue() {

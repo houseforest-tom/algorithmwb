@@ -1,5 +1,7 @@
 package de.tuhh.swp;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,11 +14,11 @@ public class ArrayDropdown<T> extends JPanel {
 
     public ArrayDropdown(String label, T[] values) {
         this.values = values;
+        setLayout(new MigLayout("", "[100!]20[200!]", ""));
         dropdown = new JComboBox<>();
         dropdown.setModel(new DefaultComboBoxModel<>(values));
         add(new JLabel(label + ": "));
         add(dropdown);
-        setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
     public T getSelection() {
