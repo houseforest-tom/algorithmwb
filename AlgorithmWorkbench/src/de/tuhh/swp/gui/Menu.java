@@ -1,4 +1,11 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui;
+
+import de.tuhh.swp.convert.ImageConverter;
+import de.tuhh.swp.convert.LabelConverter;
+import de.tuhh.swp.Workbench;
+import de.tuhh.swp.gui.panel.KMeanSettingsPanel;
+import de.tuhh.swp.gui.panel.KNNSettingsPanel;
+import de.tuhh.swp.image.ImageValue;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

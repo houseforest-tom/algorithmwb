@@ -6,11 +6,10 @@
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
+package de.tuhh.swp.image;
 
+import de.tuhh.swp.image.ImageDefinition;
 import org.garret.perst.Persistent;
-
-import java.util.Arrays;
 
 /**
  * TODO: Add type documentation here.

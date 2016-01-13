@@ -7,6 +7,9 @@
  */
 package de.tuhh.swp;
 
+import de.tuhh.swp.algorithm.KMean;
+import de.tuhh.swp.algorithm.KNN;
+import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 import org.garret.perst.Database;
 import org.garret.perst.Storage;
@@ -102,7 +105,7 @@ public class Workbench extends JFrame {
         content.setLayout(new MigLayout());
 
         // Setup menu bar.
-        menubar = new Menu(this);
+        menubar = new de.tuhh.swp.gui.Menu(this);
         setJMenuBar(menubar);
 
         content.setVisible(true);

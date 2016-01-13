@@ -18,7 +18,7 @@
  *    2. This notice may not be removed or altered from any source
  *    distribution.
  */
-package de.tuhh.swp;
+package de.tuhh.swp.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

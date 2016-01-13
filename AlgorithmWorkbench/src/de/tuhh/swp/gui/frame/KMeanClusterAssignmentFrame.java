@@ -1,4 +1,8 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui.frame;
+
+import de.tuhh.swp.Workbench;
+import de.tuhh.swp.algorithm.KMean;
+import de.tuhh.swp.gui.preview.ClusterPreview;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,11 +23,10 @@ public class KMeanClusterAssignmentFrame extends JFrame {
         JPanel view = new JPanel();
         view.setLayout(new BoxLayout(view, BoxLayout.Y_AXIS));
 
-        // Create image previews.
-        ImagePreview[] previews = new ImagePreview[kmean.getClusters().length];
+        // Create cluster previews.
+        ClusterPreview[] previews = new ClusterPreview[kmean.getClusters().length];
         for (int i = 0; i < previews.length; ++i) {
-            previews[i] = new ImagePreview(kmean.getClusters()[i], 140);
-            previews[i].enableHovering();
+            previews[i] = new ClusterPreview(kmean.getClusters()[i]);
         }
 
         // Position preview frames.

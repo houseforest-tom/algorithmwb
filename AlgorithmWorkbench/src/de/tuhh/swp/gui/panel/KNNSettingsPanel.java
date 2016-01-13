@@ -1,5 +1,10 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui.panel;
 
+import de.tuhh.swp.Workbench;
+import de.tuhh.swp.algorithm.AbstractAlgorithm;
+import de.tuhh.swp.algorithm.KNN;
+import de.tuhh.swp.algorithm.LearningData;
+import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -29,7 +34,7 @@ public class KNNSettingsPanel extends JPanel {
                 workbench.getImages().length,
                 workbench.getImages().length / 1000
         ));
-        components.put("distanceMeasure", new ArrayDropdown<>(
+        components.put("distanceMeasure", new ArrayDropdownPanel<>(
                 "Distance Measure",
                 AbstractAlgorithm.DistanceMeasure.values()
         ));
@@ -47,7 +52,7 @@ public class KNNSettingsPanel extends JPanel {
             workbench.setKNNAlgorithm(knn = new KNN(
                     (int) ((SliderPanel) components.get("k")).getSliderValue(),
                     images[0].getDefinition(),
-                    ((ArrayDropdown<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
+                    ((ArrayDropdownPanel<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
             ));
 
             LearningData learnset = new LearningData();

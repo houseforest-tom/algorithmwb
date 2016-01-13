@@ -6,7 +6,10 @@
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
+package de.tuhh.swp.algorithm;
+
+import de.tuhh.swp.image.ImageDefinition;
+import de.tuhh.swp.image.ImageValue;
 
 import java.util.Arrays;
 import java.util.LinkedList;

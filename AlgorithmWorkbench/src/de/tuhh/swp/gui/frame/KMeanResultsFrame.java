@@ -1,5 +1,9 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui.frame;
 
+import de.tuhh.swp.Workbench;
+import de.tuhh.swp.algorithm.AlgorithmFailure;
+import de.tuhh.swp.algorithm.AlgorithmResult;
+import de.tuhh.swp.gui.preview.ImagePreview;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -57,7 +61,12 @@ public class KMeanResultsFrame extends JFrame {
             ImagePreview image = new ImagePreview(failures.get(0).getKey(), 140);
             JLabel imageResult = new JLabel("Image Label: " + failures.get(0).getKey().getLabel() + ", Guessed Label: " + failures.get(0).getValue());
 
-            JButton forwardButton = new JButton("forward");
+            JButton forwardButton = new JButton("");
+            forwardButton.setIcon(new ImageIcon("res/right.png"));
+            ((ImageIcon) forwardButton.getIcon()).setImage(((ImageIcon) forwardButton.getIcon()).getImage().getScaledInstance(140, 140, 0));
+            forwardButton.setOpaque(false);
+            forwardButton.setContentAreaFilled(false);
+            forwardButton.setBorderPainted(false);
             forwardButton.addActionListener((ActionEvent e) -> {
                 if (previewImageId < failures.size() - 1) {
                     image.setImage(failures.get((++previewImageId) % failures.size()).getKey());
@@ -67,7 +76,13 @@ public class KMeanResultsFrame extends JFrame {
                 }
             });
 
-            JButton backButton = new JButton("back");
+
+            JButton backButton = new JButton("");
+            backButton.setIcon(new ImageIcon("res/left.png"));
+            ((ImageIcon) backButton.getIcon()).setImage(((ImageIcon) backButton.getIcon()).getImage().getScaledInstance(140, 140, 0));
+            backButton.setOpaque(false);
+            backButton.setContentAreaFilled(false);
+            backButton.setBorderPainted(false);
             backButton.addActionListener((ActionEvent e) -> {
                 if (previewImageId > 0) {
                     image.setImage(failures.get(--previewImageId).getKey());
@@ -79,9 +94,9 @@ public class KMeanResultsFrame extends JFrame {
 
             JPanel previewPanel = new JPanel();
             previewPanel.setLayout(new MigLayout("", "[140!]10[140!]10[140!]", ""));
-            previewPanel.add(backButton, "align right, grow");
+            previewPanel.add(backButton, "grow");
             previewPanel.add(image);
-            previewPanel.add(forwardButton, "align left, grow, wrap 8");
+            previewPanel.add(forwardButton, "grow, wrap 8");
             previewPanel.add(imageResult);
             add(previewPanel);
 

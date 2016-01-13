@@ -1,4 +1,4 @@
-package de.tuhh.swp;
+package de.tuhh.swp.algorithm;
 
 import java.util.ArrayList;
 

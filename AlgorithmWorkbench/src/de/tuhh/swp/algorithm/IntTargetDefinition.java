@@ -1,19 +1,19 @@
 /**
  * <=========================================================================================>
- * File: 	 IntTargetValue.java
+ * File: 	 IntTargetDefinition.java
  * Created:  08.12.2015
  * Author:   HAUSWALD, Tom.
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
+package de.tuhh.swp.algorithm;
 
 /**
  * TODO: Add type documentation here.
  */
-public class IntTargetValue {
+public class IntTargetDefinition {
 
-	public IntTargetValue() {
+	public IntTargetDefinition() {
 		// TODO Auto-generated constructor stub
 	}
 

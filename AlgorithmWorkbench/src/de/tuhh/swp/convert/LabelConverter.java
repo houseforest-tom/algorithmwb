@@ -1,29 +1,25 @@
 /**
  * <=========================================================================================>
- * File: AbstractConverter.java
- * Created: 08.12.2015
+ * File: IPrintable.java
+ * Created: 16.12.2015
  * Author: HAUSWALD, Tom.
  * <=========================================================================================>
  */
+package de.tuhh.swp.convert;
 
-package de.tuhh.swp;
+import de.tuhh.swp.convert.AbstractConverter;
 
 /**
- * TODO: Add type documentation here.
+ * TODO: Document this type.
  */
-public abstract class AbstractConverter<T>
+public class LabelConverter extends AbstractConverter<byte[]>
 {
-
-	public AbstractConverter()
-	{
-		// TODO Auto-generated constructor stub
-	}
 
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	;;
+	private static final int MAGIC_NUMBER = 2049;
 
 	// ===========================================================
 	// Fields
@@ -47,43 +43,44 @@ public abstract class AbstractConverter<T>
 	// Override Methods
 	// ===========================================================
 
-	;;
+	@Override
+	public byte[] toInternal( byte[] external )
+	{
+		int magicNumber = AbstractConverter.bytesToInt( external, 0 );
+		if( magicNumber != MAGIC_NUMBER )
+		{
+			System.err.println( "Labels file has incorrect magic number " + magicNumber + " should be " + MAGIC_NUMBER + "." );
+		}
+
+		int numItems = AbstractConverter.bytesToInt( external, 4 );
+		System.out.println( "Loading labels for " + numItems + " training samples." );
+
+		byte[] labels = new byte[numItems];
+		for( int item = 0; item < numItems; ++item )
+		{
+			labels[item] = external[8 + item];
+		}
+
+		return labels;
+	}
+
+	@Override
+	public byte[] toExternal( byte[] internal )
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	// ===========================================================
 	// Methods
 	// ===========================================================
 
-	/**
-	 * Convert a file in an external format to the targeted internal datatype.
-	 */
-	public abstract T toInternal( byte[] external );
-
-	/**
-	 * Convert an internal datatype to an external format.
-	 */
-	public abstract byte[] toExternal( T internal );
-
-	public static int bytesToInt( byte[] bytes, int offset )
-	{
-		return bytes[offset + 3] & 0xFF |
-				( bytes[offset + 2] & 0xFF ) << 8 |
-				( bytes[offset + 1] & 0xFF ) << 16 |
-				( bytes[offset] & 0xFF ) << 24;
-	}
-
-	public static byte[] intToBytes( int n )
-	{
-		return new byte[] {
-				(byte) ( ( n >> 24 ) & 0xFF ),
-				(byte) ( ( n >> 16 ) & 0xFF ),
-				(byte) ( ( n >> 8 ) & 0xFF ),
-				(byte) ( n & 0xFF )
-		};
-	}
+	;;
 
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
 
 	;;
+
 }

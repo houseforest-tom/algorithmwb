@@ -6,7 +6,7 @@
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
+package de.tuhh.swp.algorithm;
 
 /**
  * TODO: Add type documentation here.

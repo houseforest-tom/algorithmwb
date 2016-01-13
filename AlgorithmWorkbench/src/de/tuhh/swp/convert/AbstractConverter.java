@@ -1,19 +1,23 @@
 /**
  * <=========================================================================================>
- * File: 	 KNN.java
- * Created:  08.12.2015
- * Author:   HAUSWALD, Tom.
+ * File: AbstractConverter.java
+ * Created: 08.12.2015
+ * Author: HAUSWALD, Tom.
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
-
-import java.util.List;
+package de.tuhh.swp.convert;
 
 /**
  * TODO: Add type documentation here.
  */
-public class KNN extends AbstractAlgorithm {
+public abstract class AbstractConverter<T>
+{
+
+	public AbstractConverter()
+	{
+		// TODO Auto-generated constructor stub
+	}
 
 	// ===========================================================
 	// Constants
@@ -25,27 +29,13 @@ public class KNN extends AbstractAlgorithm {
 	// Fields
 	// ===========================================================
 
-	// k.
-	private int k;
-
-	// Image definition of samples.
-	private ImageDefinition definition;
-
-	// Stored label values.
-	private KdTree<Byte> tree;
+	;;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 
-	public KNN(int k, ImageDefinition definition, DistanceMeasure distanceMeasure) {
-		this.k = k;
-		if(distanceMeasure == DistanceMeasure.Euclidean){
-			this.tree = new KdTree.SqrEuclid<Byte>(definition.width * definition.height, null);
-		} else {
-			this.tree = new KdTree.Manhattan<Byte>(definition.width * definition.height, null);
-		}
-	}
+	;;
 
 	// ===========================================================
 	// Getter & Setter
@@ -63,27 +53,32 @@ public class KNN extends AbstractAlgorithm {
 	// Methods
 	// ===========================================================
 
-	public void feed(LearningData data){
-		for(ImageValue sample : data){
-			tree.addPoint(sample.getPixels(), sample.getLabel());
-		}
+	/**
+	 * Convert a file in an external format to the targeted internal datatype.
+	 */
+	public abstract T toInternal( byte[] external );
+
+	/**
+	 * Convert an internal datatype to an external format.
+	 */
+	public abstract byte[] toExternal( T internal );
+
+	public static int bytesToInt( byte[] bytes, int offset )
+	{
+		return bytes[offset + 3] & 0xFF |
+				( bytes[offset + 2] & 0xFF ) << 8 |
+				( bytes[offset + 1] & 0xFF ) << 16 |
+				( bytes[offset] & 0xFF ) << 24;
 	}
 
-	public byte evaluate(ImageValue image){
-		List<KdTree.Entry<Byte>> neighbours = tree.nearestNeighbor(image.getPixels(), this.k, false);
-		int[] labelCounts = new int[10];
-		for(KdTree.Entry<Byte> label : neighbours){
-			++labelCounts[label.value];
-		}
-
-		byte result = 0;
-		for(byte label = 1; label <= 9; ++label){
-			if(labelCounts[label] >= labelCounts[result]){
-				result = label;
-			}
-		}
-
-		return result;
+	public static byte[] intToBytes( int n )
+	{
+		return new byte[] {
+				(byte) ( ( n >> 24 ) & 0xFF ),
+				(byte) ( ( n >> 16 ) & 0xFF ),
+				(byte) ( ( n >> 8 ) & 0xFF ),
+				(byte) ( n & 0xFF )
+		};
 	}
 
 	// ===========================================================

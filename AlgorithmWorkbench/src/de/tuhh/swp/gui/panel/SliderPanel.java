@@ -1,4 +1,4 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui.panel;
 
 import net.miginfocom.swing.MigLayout;
 

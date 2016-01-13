@@ -6,7 +6,7 @@
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
+package de.tuhh.swp.image;
 
 /**
  * TODO: Add type documentation here.

@@ -1,19 +1,19 @@
 /**
  * <=========================================================================================>
- * File: 	 AbstractAlgorithm.java
+ * File: 	 IntTargetValue.java
  * Created:  08.12.2015
  * Author:   HAUSWALD, Tom.
  * <=========================================================================================>
  */
 
-package de.tuhh.swp;
+package de.tuhh.swp.algorithm;
 
 /**
  * TODO: Add type documentation here.
  */
-public abstract class AbstractAlgorithm {
+public class IntTargetValue {
 
-	public AbstractAlgorithm() {
+	public IntTargetValue() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -57,8 +57,5 @@ public abstract class AbstractAlgorithm {
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	public enum DistanceMeasure {
-		Manhattan,
-		Euclidean
-	}
+	;;
 }

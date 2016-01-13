@@ -1,4 +1,4 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui.panel;
 
 import javax.swing.event.ChangeEvent;
 

@@ -1,5 +1,10 @@
-package de.tuhh.swp;
+package de.tuhh.swp.gui.panel;
 
+import de.tuhh.swp.gui.frame.KMeanClusterAssignmentFrame;
+import de.tuhh.swp.gui.frame.KMeanResultsFrame;
+import de.tuhh.swp.Workbench;
+import de.tuhh.swp.algorithm.*;
+import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -30,11 +35,11 @@ public class KMeanSettingsPanel extends JPanel {
                 workbench.getImages().length,
                 workbench.getImages().length / 2
         ));
-        components.put("distanceMeasure", new ArrayDropdown<>(
+        components.put("distanceMeasure", new ArrayDropdownPanel<>(
                 "Distance Measure",
                 AbstractAlgorithm.DistanceMeasure.values()
         ));
-        components.put("initialClusters", new ArrayDropdown<>("Initial Clusters", new String[]{
+        components.put("initialClusters", new ArrayDropdownPanel<>("Initial Clusters", new String[]{
                 "Random Generation",
                 "Random Selection"
         }));
@@ -56,7 +61,7 @@ public class KMeanSettingsPanel extends JPanel {
             workbench.setKMeanAlgorithm(kmean = new KMean(
                     (int) ((SliderPanel) components.get("k")).getSliderValue(),
                     images[0].getDefinition(),
-                    ((ArrayDropdown<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
+                    ((ArrayDropdownPanel<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
             ));
 
             // Add learning samples.
@@ -70,7 +75,7 @@ public class KMeanSettingsPanel extends JPanel {
                     (int) ((SliderPanel) components.get("iterations")).getSliderValue(),
                     ((SliderPanel) components.get("minDelta")).getSliderValue(),
                     learnset,
-                    ((ArrayDropdown<String>) components.get("initialClusters")).getSelection().equals("Random Generation")
+                    ((ArrayDropdownPanel<String>) components.get("initialClusters")).getSelection().equals("Random Generation")
             );
             System.out.println("Finished searching " + kmean.getClusters().length + " clusters, please assign labels.");
 
