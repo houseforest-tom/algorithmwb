@@ -3,9 +3,11 @@ package de.tuhh.swp.gui.frame;
 import de.tuhh.swp.Workbench;
 import de.tuhh.swp.algorithm.KMean;
 import de.tuhh.swp.gui.preview.ClusterPreview;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -14,10 +16,14 @@ import java.awt.event.WindowEvent;
  */
 public class KMeanClusterAssignmentFrame extends JFrame {
 
+    private Workbench workbench;
+
     public KMeanClusterAssignmentFrame(Workbench workbench) {
 
         super("Assign k-Mean Clusters");
+        this.workbench = workbench;
         setLocationRelativeTo(workbench);
+        setLayout(new MigLayout());
 
         KMean kmean = workbench.getKMeanAlgorithm();
         JPanel view = new JPanel();
@@ -43,26 +49,35 @@ public class KMeanClusterAssignmentFrame extends JFrame {
         }
 
         view.setVisible(true);
-        add(view);
+        add(view, "wrap 8");
+        JButton confirmButton = new JButton("Confirm");
+        confirmButton.addActionListener((ActionEvent e) -> confirm());
+        add(confirmButton, "center, w 140!");
 
         // Window was closed.
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event) {
-                boolean complete = true;
-                for (int i = 0; i < kmean.getClusters().length; ++i) {
-                    if (kmean.getClusters()[i].getLabel() == (byte) 0xff) {
-                        complete = false;
-                    }
-                }
-                if (complete) {
-                    dispose();
-                } else {
-                    JOptionPane.showMessageDialog(workbench, "Please assign labels to remaining clusters.", "Assignments missing!", JOptionPane.ERROR_MESSAGE);
-                }
+                confirm();
             }
         });
 
         pack();
+    }
+
+    // Confirm assigned cluster labels.
+    private void confirm() {
+        boolean complete = true;
+        KMean kmean = workbench.getKMeanAlgorithm();
+        for (int i = 0; i < kmean.getClusters().length; ++i) {
+            if (kmean.getClusters()[i].getLabel() == (byte) 0xff) {
+                complete = false;
+            }
+        }
+        if (complete) {
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(workbench, "Please assign labels to remaining clusters.", "Assignments missing!", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

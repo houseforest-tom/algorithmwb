@@ -3,11 +3,11 @@ package de.tuhh.swp.gui.frame;
 import de.tuhh.swp.Workbench;
 import de.tuhh.swp.algorithm.AlgorithmFailure;
 import de.tuhh.swp.algorithm.AlgorithmResult;
+import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.gui.preview.ImagePreview;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -26,12 +26,10 @@ public class KMeanResultsFrame extends JFrame {
         setLayout(new MigLayout());
         setFocusable(true);
 
-        JLabel heading = new JLabel("k-Mean Results");
-        heading.setFont(new Font("Comic Sans MS", Font.BOLD, 30));
+        JLabel heading = new HeadingLabel("k-Mean Results", 30);
         add(heading, "center, wrap 16");
 
-        JLabel classifier = new JLabel("Classifier Information");
-        classifier.setFont(new Font("Serif", Font.BOLD, 20));
+        JLabel classifier = new HeadingLabel("Classifier Information", 20);
         add(classifier, "wrap 8");
 
         add(new JLabel("Algorithm: k-Mean"), "wrap");
@@ -48,10 +46,11 @@ public class KMeanResultsFrame extends JFrame {
         learnsetPartition += ")";
         add(new JLabel(learnsetPartition), "wrap");
 
+        double successRate = (double) result.getCorrectAttempts() / (double) (result.getAttemptCount());
         add(new JLabel(
                 "Correct guesses: " + result.getCorrectAttempts()
                         + " / " + result.getAttemptCount()
-                        + " (" + (double) result.getCorrectAttempts() / (double) (result.getAttemptCount()) * 100.0 + "%"
+                        + " (" + String.format("%.2f%%", successRate * 100.0) + ")"
         ), "wrap");
 
 
@@ -93,7 +92,7 @@ public class KMeanResultsFrame extends JFrame {
             });
 
             JPanel previewPanel = new JPanel();
-            previewPanel.setLayout(new MigLayout("", "[140!]10[140!]10[140!]", ""));
+            previewPanel.setLayout(new MigLayout("", "[140!]30[140!]0[140!]", ""));
             previewPanel.add(backButton, "grow");
             previewPanel.add(image);
             previewPanel.add(forwardButton, "grow, wrap 8");

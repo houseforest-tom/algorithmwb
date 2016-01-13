@@ -18,7 +18,7 @@ public class ArrayDropdownPanel<T> extends JPanel {
         dropdown = new JComboBox<>();
         dropdown.setModel(new DefaultComboBoxModel<>(values));
         add(new JLabel(label + ": "));
-        add(dropdown);
+        add(dropdown, "growx");
     }
 
     public T getSelection() {

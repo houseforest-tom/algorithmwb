@@ -4,6 +4,7 @@ import de.tuhh.swp.Workbench;
 import de.tuhh.swp.algorithm.AbstractAlgorithm;
 import de.tuhh.swp.algorithm.KNN;
 import de.tuhh.swp.algorithm.LearningData;
+import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
@@ -78,9 +79,7 @@ public class KNNSettingsPanel extends JPanel {
         });
 
         setLayout(new MigLayout("", "", ""));
-        JLabel heading = new JLabel("k-Nearest-Neighbour Algorithm");
-        heading.setFont(new Font("Serif", Font.BOLD, 30));
-        add(heading, "center, wrap 16");
+        add(new HeadingLabel("k-Nearest-Neighbour Algorithm", 30), "center, wrap 16");
         for (Map.Entry<String, JComponent> component : components.entrySet()) {
             add(component.getValue(), "wrap");
         }

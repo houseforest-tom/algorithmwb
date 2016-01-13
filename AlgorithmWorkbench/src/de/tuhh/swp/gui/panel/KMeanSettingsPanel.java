@@ -1,5 +1,6 @@
 package de.tuhh.swp.gui.panel;
 
+import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.gui.frame.KMeanClusterAssignmentFrame;
 import de.tuhh.swp.gui.frame.KMeanResultsFrame;
 import de.tuhh.swp.Workbench;
@@ -115,9 +116,7 @@ public class KMeanSettingsPanel extends JPanel {
         });
 
         setLayout(new MigLayout("", "", ""));
-        JLabel heading = new JLabel("k-Mean Algorithm");
-        heading.setFont(new Font("Serif", Font.BOLD, 30));
-        add(heading, "center, wrap 16");
+        add(new HeadingLabel("k-Mean Algorithm", 30), "center, wrap 16");
         for (Map.Entry<String, JComponent> component : components.entrySet()) {
             add(component.getValue(), "wrap");
         }
