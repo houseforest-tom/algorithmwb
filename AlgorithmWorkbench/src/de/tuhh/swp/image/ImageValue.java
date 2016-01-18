@@ -8,6 +8,7 @@
 
 package de.tuhh.swp.image;
 
+import de.tuhh.swp.algorithm.IntTargetValue;
 import de.tuhh.swp.image.ImageDefinition;
 import org.garret.perst.Persistent;
 
@@ -28,13 +29,13 @@ public class ImageValue extends Persistent {
 
     private ImageDefinition definition;
     private double[] pixels;
-    private byte label;
+    private IntTargetValue label;
 
     // ===========================================================
     // Constructors
     // ===========================================================
 
-    public ImageValue(ImageDefinition definition, byte label) {
+    public ImageValue(ImageDefinition definition, IntTargetValue label) {
         this.definition = definition;
         this.pixels = new double[definition.width * definition.height];
         this.label = label;
@@ -64,11 +65,11 @@ public class ImageValue extends Persistent {
         return definition;
     }
 
-    public byte getLabel(){
+    public IntTargetValue getLabel(){
         return label;
     }
 
-    public void setLabel(byte label) {
+    public void setLabel(IntTargetValue label) {
         this.label = label;
     }
 

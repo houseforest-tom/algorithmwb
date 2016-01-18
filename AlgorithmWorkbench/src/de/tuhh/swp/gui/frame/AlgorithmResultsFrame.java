@@ -58,7 +58,10 @@ public class AlgorithmResultsFrame extends JFrame {
         if (result.getCorrectAttempts() < result.getAttemptCount()) {
             ArrayList<AlgorithmFailure> failures = result.getFailures();
             ImagePreview image = new ImagePreview(failures.get(0).getKey(), 140);
-            JLabel imageResult = new JLabel("Image Label: " + failures.get(0).getKey().getLabel() + ", Guessed Label: " + failures.get(0).getValue());
+            JLabel imageResult = new JLabel(
+                    "Image Label: " + failures.get(0).getKey().getLabel().getValue()
+                            + ", Guessed Label: " + failures.get(0).getValue().getValue()
+            );
 
             JButton forwardButton = new JButton("");
             forwardButton.setIcon(new ImageIcon("res/right.png"));
@@ -69,7 +72,10 @@ public class AlgorithmResultsFrame extends JFrame {
             forwardButton.addActionListener((ActionEvent e) -> {
                 if (previewImageId < failures.size() - 1) {
                     image.setImage(failures.get((++previewImageId) % failures.size()).getKey());
-                    imageResult.setText("Image Label: " + failures.get(previewImageId).getKey().getLabel() + ", Guessed Label: " + failures.get(previewImageId).getValue());
+                    imageResult.setText(
+                            "Image Label: " + failures.get(previewImageId).getKey().getLabel().getValue()
+                                    + ", Guessed Label: " + failures.get(previewImageId).getValue().getValue()
+                    );
                     imageResult.repaint();
                     image.repaint();
                 }
@@ -85,7 +91,10 @@ public class AlgorithmResultsFrame extends JFrame {
             backButton.addActionListener((ActionEvent e) -> {
                 if (previewImageId > 0) {
                     image.setImage(failures.get(--previewImageId).getKey());
-                    imageResult.setText("Image Label: " + failures.get(previewImageId).getKey().getLabel() + ", Guessed Label: " + failures.get(previewImageId).getValue());
+                    imageResult.setText(
+                            "Image Label: " + failures.get(previewImageId).getKey().getLabel().getValue()
+                                    + ", Guessed Label: " + failures.get(previewImageId).getValue().getValue()
+                    );
                     imageResult.repaint();
                     image.repaint();
                 }

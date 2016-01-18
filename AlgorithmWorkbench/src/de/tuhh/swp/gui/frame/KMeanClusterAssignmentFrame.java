@@ -70,7 +70,7 @@ public class KMeanClusterAssignmentFrame extends JFrame {
         boolean complete = true;
         KMean kmean = workbench.getKMeanAlgorithm();
         for (int i = 0; i < kmean.getClusters().length; ++i) {
-            if (kmean.getClusters()[i].getLabel() == (byte) 0xff) {
+            if (!kmean.getClusters()[i].isAssigned()) {
                 complete = false;
             }
         }

@@ -7,6 +7,7 @@
  */
 package de.tuhh.swp.convert;
 
+import de.tuhh.swp.algorithm.IntTargetValue;
 import de.tuhh.swp.image.ImageDefinition;
 import de.tuhh.swp.image.ImageValue;
 import de.tuhh.swp.Workbench;
@@ -27,14 +28,14 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
     // Fields
     // ===========================================================
 
-    private byte[] labels;
+    private IntTargetValue[] labels;
     private Workbench workbench;
 
     // ===========================================================
     // Constructors
     // ===========================================================
 
-    public ImageConverter(Workbench workbench, byte[] labels) {
+    public ImageConverter(Workbench workbench, IntTargetValue[] labels) {
         this.labels = labels;
         this.workbench = workbench;
     }
@@ -73,14 +74,14 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
             image = images[i] = new ImageValue(definition, labels[i]);
             for (y = 0; y < height; ++y) {
                 for (x = 0; x < width; ++x) {
-                    image.setPixel(x, y, (double)Byte.toUnsignedInt(external[offset++]));
+                    image.setPixel(x, y, (double) Byte.toUnsignedInt(external[offset++]));
                 }
             }
             workbench.getDatabase().addRecord(image);
         }
 
         long count = 0;
-        for(int label = 0; label <= 9; ++label){
+        for (int label = 0; label <= 9; ++label) {
             count = getLabelledImages(label).size();
             System.out.println("Retrieved " + count + " images labelled '" + label + "' from database.");
         }
@@ -97,8 +98,8 @@ public class ImageConverter extends AbstractConverter<ImageValue[]> {
     // Methods
     // ===========================================================
 
-    private ArrayList<ImageValue> getLabelledImages(int label){
-        return workbench.getDatabase().<ImageValue>select(ImageValue.class, "label = " + label).toList();
+    private ArrayList<ImageValue> getLabelledImages(int label) {
+        return workbench.getDatabase().<ImageValue>select(ImageValue.class, "label.value = " + label).toList();
     }
 
     // ===========================================================

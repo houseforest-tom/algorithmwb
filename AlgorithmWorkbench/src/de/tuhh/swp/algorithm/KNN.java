@@ -36,7 +36,7 @@ public class KNN extends AbstractAlgorithm {
 	private ImageDefinition definition;
 
 	// Stored label values.
-	private KdTree<Byte> tree;
+	private KdTree<IntTargetValue> tree;
 
 	// ===========================================================
 	// Constructors
@@ -46,9 +46,9 @@ public class KNN extends AbstractAlgorithm {
 		super("k-Nearest-Neighbour");
 		this.k = k;
 		if(distanceMeasure == DistanceMeasure.Euclidean){
-			this.tree = new KdTree.SqrEuclid<Byte>(definition.width * definition.height, null);
+			this.tree = new KdTree.SqrEuclid<>(definition.width * definition.height, null);
 		} else {
-			this.tree = new KdTree.Manhattan<Byte>(definition.width * definition.height, null);
+			this.tree = new KdTree.Manhattan<>(definition.width * definition.height, null);
 		}
 	}
 
@@ -74,17 +74,17 @@ public class KNN extends AbstractAlgorithm {
 		}
 	}
 
-	public byte evaluate(ImageValue image){
-		List<KdTree.Entry<Byte>> neighbours = tree.nearestNeighbor(image.getPixels(), this.k, false);
+	public IntTargetValue evaluate(ImageValue image){
+		List<KdTree.Entry<IntTargetValue>> neighbours = tree.nearestNeighbor(image.getPixels(), this.k, false);
 		int[] labelCounts = new int[10];
-		for(KdTree.Entry<Byte> label : neighbours){
-			++labelCounts[label.value];
+		for(KdTree.Entry<IntTargetValue> label : neighbours){
+			++labelCounts[label.value.getValue()];
 		}
 
-		byte result = 0;
-		for(byte label = 1; label <= 9; ++label){
-			if(labelCounts[label] >= labelCounts[result]){
-				result = label;
+		IntTargetValue result = new IntTargetValue(IntTargetDefinition.LABEL, 0);
+		for(int label = 1; label <= 9; ++label){
+			if(labelCounts[label] >= labelCounts[result.getValue()]){
+				result.setValue(label);
 			}
 		}
 

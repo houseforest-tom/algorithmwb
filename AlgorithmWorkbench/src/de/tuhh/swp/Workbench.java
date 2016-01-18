@@ -215,9 +215,10 @@ public class Workbench extends JFrame {
         );
 
         System.out.println("Evaluating " + attempts + " samples with " + algorithm.getName() + " algorithm...");
-        byte guessedLabel;
+        IntTargetValue guessedLabel = new IntTargetValue(IntTargetDefinition.LABEL, 0);
         for (int i = offset; i < end; ++i) {
-            if ((guessedLabel = algorithm.evaluate(images[i])) == images[i].getLabel()) {
+            guessedLabel.setValue(algorithm.evaluate(images[i]).getValue());
+            if (guessedLabel.getValue() == images[i].getLabel().getValue()) {
                 correctAttemptCount++;
             } else {
                 result.addFailure(new AlgorithmFailure(images[i], guessedLabel));

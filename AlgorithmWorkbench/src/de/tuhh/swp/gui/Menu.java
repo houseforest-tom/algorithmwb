@@ -1,5 +1,6 @@
 package de.tuhh.swp.gui;
 
+import de.tuhh.swp.algorithm.IntTargetValue;
 import de.tuhh.swp.convert.ImageConverter;
 import de.tuhh.swp.convert.LabelConverter;
 import de.tuhh.swp.Workbench;
@@ -105,7 +106,7 @@ public class Menu extends JMenuBar {
             JOptionPane.showMessageDialog(workbench, "Couldn't add to database. Please specify a valid images file.");
         } else try {
             byte[] labelFile = Files.readAllBytes(Paths.get(labelsFilePath));
-            byte[] labels = new LabelConverter().toInternal(labelFile);
+            IntTargetValue[] labels = new LabelConverter().toInternal(labelFile);
             byte[] imagesFile = Files.readAllBytes(Paths.get(imagesFilePath));
             ImageValue[] images = new ImageConverter(workbench, labels).toInternal(imagesFile);
             workbench.setImages(images);

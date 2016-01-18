@@ -7,80 +7,77 @@
  */
 package de.tuhh.swp.convert;
 
+import de.tuhh.swp.algorithm.IntTargetDefinition;
+import de.tuhh.swp.algorithm.IntTargetValue;
 import de.tuhh.swp.convert.AbstractConverter;
 
 /**
  * TODO: Document this type.
  */
-public class LabelConverter extends AbstractConverter<byte[]>
-{
+public class LabelConverter extends AbstractConverter<IntTargetValue[]> {
 
-	// ===========================================================
-	// Constants
-	// ===========================================================
+    // ===========================================================
+    // Constants
+    // ===========================================================
 
-	private static final int MAGIC_NUMBER = 2049;
+    private static final int MAGIC_NUMBER = 2049;
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Override Methods
-	// ===========================================================
+    // ===========================================================
+    // Override Methods
+    // ===========================================================
 
-	@Override
-	public byte[] toInternal( byte[] external )
-	{
-		int magicNumber = AbstractConverter.bytesToInt( external, 0 );
-		if( magicNumber != MAGIC_NUMBER )
-		{
-			System.err.println( "Labels file has incorrect magic number " + magicNumber + " should be " + MAGIC_NUMBER + "." );
-		}
+    @Override
+    public IntTargetValue[] toInternal(byte[] external) {
+        int magicNumber = AbstractConverter.bytesToInt(external, 0);
+        if (magicNumber != MAGIC_NUMBER) {
+            System.err.println("Labels file has incorrect magic number " + magicNumber + " should be " + MAGIC_NUMBER + ".");
+        }
 
-		int numItems = AbstractConverter.bytesToInt( external, 4 );
-		System.out.println( "Loading labels for " + numItems + " training samples." );
+        int numItems = AbstractConverter.bytesToInt(external, 4);
+        System.out.println("Loading labels for " + numItems + " training samples.");
 
-		byte[] labels = new byte[numItems];
-		for( int item = 0; item < numItems; ++item )
-		{
-			labels[item] = external[8 + item];
-		}
+        IntTargetValue[] labels = new IntTargetValue[numItems];
+        for (int item = 0; item < numItems; ++item) {
+            labels[item] = new IntTargetValue(IntTargetDefinition.LABEL, (int) external[8 + item]);
+        }
 
-		return labels;
-	}
+        return labels;
+    }
 
-	@Override
-	public byte[] toExternal( byte[] internal )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public byte[] toExternal(IntTargetValue[] internal) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
+    // ===========================================================
+    // Methods
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
 
-	;;
+    ;;
 
 }

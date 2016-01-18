@@ -7,8 +7,8 @@ import java.util.HashMap;
 /**
  * Created by Tom on 13.01.2016.
  */
-public class AlgorithmFailure extends HashMap.SimpleEntry<ImageValue, Byte> {
-    public AlgorithmFailure(ImageValue image, Byte guessedLabel) {
+public class AlgorithmFailure extends HashMap.SimpleEntry<ImageValue, IntTargetValue> {
+    public AlgorithmFailure(ImageValue image, IntTargetValue guessedLabel) {
         super(image, guessedLabel);
     }
 }

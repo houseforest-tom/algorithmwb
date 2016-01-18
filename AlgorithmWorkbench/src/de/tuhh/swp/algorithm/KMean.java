@@ -222,7 +222,7 @@ public class KMean extends AbstractAlgorithm {
         //System.out.println("KMean algorithm finished.");
     }
 
-    public byte evaluate(ImageValue image) {
+    public IntTargetValue evaluate(ImageValue image) {
 
         // Find nearest cluster.
         int nearestClusterId = -1;
@@ -246,10 +246,12 @@ public class KMean extends AbstractAlgorithm {
 
     public class KMeanCluster extends ImageValue {
         private LinkedList<ImageValue> children;
+        private boolean assigned;
 
         public KMeanCluster(ImageDefinition imageDefinition) {
-            super(imageDefinition, (byte) 0xff);
+            super(imageDefinition, new IntTargetValue(IntTargetDefinition.LABEL, 0));
             this.children = new LinkedList<>();
+            this.assigned = false;
         }
 
         public void randomizeLocation(double min, double max) {
@@ -262,6 +264,14 @@ public class KMean extends AbstractAlgorithm {
 
         public LinkedList<ImageValue> getChildren() {
             return children;
+        }
+
+        public boolean isAssigned() {
+            return assigned;
+        }
+
+        public void setAssigned(boolean assigned) {
+            this.assigned = assigned;
         }
 
         public double updateLocation() {

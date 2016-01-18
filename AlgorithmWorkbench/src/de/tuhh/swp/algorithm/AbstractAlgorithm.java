@@ -59,7 +59,7 @@ public abstract class AbstractAlgorithm {
 
     public abstract void feed(LearningData learningData);
 
-    public abstract byte evaluate(ImageValue image);
+    public abstract IntTargetValue evaluate(ImageValue image);
 
     // ===========================================================
     // Inner and Anonymous Classes

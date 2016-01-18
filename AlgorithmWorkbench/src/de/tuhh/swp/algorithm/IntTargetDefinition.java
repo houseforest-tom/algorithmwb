@@ -13,27 +13,26 @@ package de.tuhh.swp.algorithm;
  */
 public class IntTargetDefinition {
 
-	public IntTargetDefinition() {
-		// TODO Auto-generated constructor stub
-	}
-
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	;;
+	public static IntTargetDefinition LABEL = new IntTargetDefinition(0, 10);
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
-	;;
+	private int min, max;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 
-	;;
+	public IntTargetDefinition(int min, int max) {
+		this.min = min;
+		this.max = max;
+	}
 
 	// ===========================================================
 	// Getter & Setter
@@ -51,7 +50,9 @@ public class IntTargetDefinition {
 	// Methods
 	// ===========================================================
 
-	;;
+	public boolean isValidValue(int value){
+		return min <= value && value <= max;
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes

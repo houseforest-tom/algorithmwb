@@ -24,7 +24,7 @@ public class LearningData extends ArrayList<ImageValue> {
     public int getSampleCount(byte label) {
         int count = 0;
         for (ImageValue image : this) {
-            if (image.getLabel() == label) {
+            if (image.getLabel().getValue() == label) {
                 ++count;
             }
         }

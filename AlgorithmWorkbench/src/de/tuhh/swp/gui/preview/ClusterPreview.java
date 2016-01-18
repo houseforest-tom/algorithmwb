@@ -1,5 +1,7 @@
 package de.tuhh.swp.gui.preview;
 
+import de.tuhh.swp.algorithm.IntTargetDefinition;
+import de.tuhh.swp.algorithm.IntTargetValue;
 import de.tuhh.swp.algorithm.KMean;
 import de.tuhh.swp.gui.panel.NumPadPanel;
 import net.miginfocom.swing.MigLayout;
@@ -60,8 +62,9 @@ public class ClusterPreview extends ImagePreview {
         });
         applyButton.addActionListener((ActionEvent e) -> {
             assignFrame.dispatchEvent(new WindowEvent(assignFrame, WindowEvent.WINDOW_CLOSING));
-            byte label = Byte.valueOf(numpad.getSelection());
+            IntTargetValue label = new IntTargetValue(IntTargetDefinition.LABEL, Integer.valueOf(numpad.getSelection()));
             cluster.setLabel(label);
+            cluster.setAssigned(true);
         });
         assignFrame.pack();
         assignFrame.setVisible(true);
@@ -83,7 +86,7 @@ public class ClusterPreview extends ImagePreview {
                     color = new Color(pixel, pixel, pixel);
                     if (hovered && pixel >= 16) {
                         color = multiplyColors(color, new Color(0x64, 0x95, 0xed));
-                    } else if (cluster.getLabel() != (byte) 0xff) {
+                    } else if (!cluster.isAssigned()) {
                         color = multiplyColors(color, new Color(0xbf, 0xff, 0x00));
                     }
                     g.setColor(color);
