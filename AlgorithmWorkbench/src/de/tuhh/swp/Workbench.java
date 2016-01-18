@@ -7,8 +7,9 @@
  */
 package de.tuhh.swp;
 
-import de.tuhh.swp.algorithm.KMean;
-import de.tuhh.swp.algorithm.KNN;
+import de.tuhh.swp.algorithm.*;
+import de.tuhh.swp.gui.frame.AlgorithmResultsFrame;
+import de.tuhh.swp.gui.panel.SliderPanel;
 import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 import org.garret.perst.Database;
@@ -197,6 +198,38 @@ public class Workbench extends JFrame {
         Dimension dim = new Dimension((int) width, (int) height);
         component.setPreferredSize(dim);
         component.setSize(dim);
+    }
+
+    public void performAlgorithmTestRun(AbstractAlgorithm algorithm, LearningData learningData, int evaluationSamples) {
+
+        int attempts = evaluationSamples;
+        int correctAttemptCount = 0;
+        int offset = learningData.size();
+        int end = Math.min(offset + attempts, images.length);
+        attempts = end - offset; // Adjust attempt count.
+
+        // Construct empty algorithm result.
+        AlgorithmResult result = new AlgorithmResult(
+                attempts,
+                learningData
+        );
+
+        System.out.println("Evaluating " + attempts + " samples with " + algorithm.getName() + " algorithm...");
+        byte guessedLabel;
+        for (int i = offset; i < end; ++i) {
+            if ((guessedLabel = algorithm.evaluate(images[i])) == images[i].getLabel()) {
+                correctAttemptCount++;
+            } else {
+                result.addFailure(new AlgorithmFailure(images[i], guessedLabel));
+            }
+        }
+
+        // Update correct attempts.
+        result.setCorrectAttemptCount(correctAttemptCount);
+
+
+        // Open results page.
+        new AlgorithmResultsFrame(algorithm, result, this).setVisible(true);
     }
 
     // ===========================================================

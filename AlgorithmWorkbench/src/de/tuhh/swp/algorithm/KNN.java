@@ -43,6 +43,7 @@ public class KNN extends AbstractAlgorithm {
 	// ===========================================================
 
 	public KNN(int k, ImageDefinition definition, DistanceMeasure distanceMeasure) {
+		super("k-Nearest-Neighbour");
 		this.k = k;
 		if(distanceMeasure == DistanceMeasure.Euclidean){
 			this.tree = new KdTree.SqrEuclid<Byte>(definition.width * definition.height, null);

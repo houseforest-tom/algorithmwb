@@ -13,10 +13,15 @@ public class FloatSliderPanel extends SliderPanel {
         super(label, 0, 100, (int) (value / (max - min) * 100));
         this.min = min;
         this.max = max;
-        super.currentValueLabel.setText("" + getSliderValue());
+        updateText();
         this.slider.addChangeListener((ChangeEvent e) -> {
             currentValueLabel.setText("" + getSliderValue());
         });
+    }
+
+    public void setMaxValue(float max){
+        this.max = max;
+        updateText();
     }
 
     @Override

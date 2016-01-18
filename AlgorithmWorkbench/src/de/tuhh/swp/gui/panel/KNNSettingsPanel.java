@@ -9,6 +9,7 @@ import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
@@ -35,6 +36,12 @@ public class KNNSettingsPanel extends JPanel {
                 workbench.getImages().length,
                 workbench.getImages().length / 1000
         ));
+        final SliderPanel learningSamplesPanel = (SliderPanel) components.get("learningSamples");
+        final SliderPanel evaluationSamplesPanel = (SliderPanel) components.get("evaluationSamples");
+        learningSamplesPanel.addSliderChangeListener((ChangeEvent e) -> {
+            evaluationSamplesPanel.setMaxValue(workbench.getImages().length - (int)learningSamplesPanel.getSliderValue());
+            evaluationSamplesPanel.updateText();
+        });
         components.put("distanceMeasure", new ArrayDropdownPanel<>(
                 "Distance Measure",
                 AbstractAlgorithm.DistanceMeasure.values()
@@ -64,18 +71,7 @@ public class KNNSettingsPanel extends JPanel {
             System.out.println("Feeding k-Nearest-Neighbour algorithm " + learnset.size() + " learning samples...");
             knn.feed(learnset);
 
-            int attempts = (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue();
-            int correctGuesses = 0;
-            int offset = learnset.size();
-            int end = Math.min(offset + attempts, images.length);
-            attempts = end - offset; // Adjust attempt count.
-            System.out.println("Evaluating " + attempts + " samples with k-Nearest-Neighbour algorithm...");
-            for (int i = offset; i < end; ++i) {
-                if (knn.evaluate(images[i]) == images[i].getLabel()) {
-                    correctGuesses++;
-                }
-            }
-            System.out.println("k-Nearest-Neighbour guessed " + (double) correctGuesses / (double) (attempts) * 100.0 + "% correctly.");
+            workbench.performAlgorithmTestRun(knn, learnset, (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue());
         });
 
         setLayout(new MigLayout("", "", ""));

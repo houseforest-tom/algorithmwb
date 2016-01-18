@@ -1,9 +1,11 @@
 package de.tuhh.swp.gui.panel;
 
+import javafx.scene.control.TextFormatter;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 
 /**
@@ -27,6 +29,20 @@ public class SliderPanel extends JPanel {
         add(nameLabel);
         add(slider);
         add(currentValueLabel);
+    }
+
+    public void updateText() {
+        this.currentValueLabel.setText("" + getSliderValue());
+    }
+
+    public void addSliderChangeListener(ChangeListener onChange) {
+        this.slider.addChangeListener(onChange);
+    }
+
+    public void setMaxValue(int max) {
+        int prevMax = this.slider.getMaximum();
+        this.slider.setMaximum(max);
+        this.slider.setValue((int) ((double) this.slider.getValue() * ((double) max / (double) prevMax)));
     }
 
     public float getSliderValue() {

@@ -2,14 +2,14 @@ package de.tuhh.swp.gui.panel;
 
 import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.gui.frame.KMeanClusterAssignmentFrame;
-import de.tuhh.swp.gui.frame.KMeanResultsFrame;
+import de.tuhh.swp.gui.frame.AlgorithmResultsFrame;
 import de.tuhh.swp.Workbench;
 import de.tuhh.swp.algorithm.*;
 import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,6 +36,12 @@ public class KMeanSettingsPanel extends JPanel {
                 workbench.getImages().length,
                 workbench.getImages().length / 2
         ));
+        final SliderPanel learningSamplesPanel = (SliderPanel) components.get("learningSamples");
+        final SliderPanel evaluationSamplesPanel = (SliderPanel) components.get("evaluationSamples");
+        learningSamplesPanel.addSliderChangeListener((ChangeEvent e) -> {
+            evaluationSamplesPanel.setMaxValue(workbench.getImages().length - (int)learningSamplesPanel.getSliderValue());
+            evaluationSamplesPanel.updateText();
+        });
         components.put("distanceMeasure", new ArrayDropdownPanel<>(
                 "Distance Measure",
                 AbstractAlgorithm.DistanceMeasure.values()
@@ -72,12 +78,10 @@ public class KMeanSettingsPanel extends JPanel {
             }
 
             System.out.println("Feeding k-Mean algorithm " + learnset.size() + " learning samples...");
-            kmean.feed(
-                    (int) ((SliderPanel) components.get("iterations")).getSliderValue(),
-                    ((SliderPanel) components.get("minDelta")).getSliderValue(),
-                    learnset,
-                    ((ArrayDropdownPanel<String>) components.get("initialClusters")).getSelection().equals("Random Generation")
-            );
+            kmean.setIterations((int) ((SliderPanel) components.get("iterations")).getSliderValue());
+            kmean.setThreshold(((SliderPanel) components.get("minDelta")).getSliderValue());
+            kmean.setInitialClusterRNG(((ArrayDropdownPanel<String>) components.get("initialClusters")).getSelection().equals("Random Generation"));
+            kmean.feed(learnset);
             System.out.println("Finished searching " + kmean.getClusters().length + " clusters, please assign labels.");
 
             // Open cluster assignment view.
@@ -85,34 +89,11 @@ public class KMeanSettingsPanel extends JPanel {
         });
 
         performButton.addActionListener((ActionEvent event) -> {
-            int attempts = (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue();
-            int correctAttemptCount = 0;
-            int offset = learnset.size();
-            int end = Math.min(offset + attempts, images.length);
-            attempts = end - offset; // Adjust attempt count.
-
-            // Construct empty algorithm result.
-            AlgorithmResult result = new AlgorithmResult(
-                    attempts,
-                    learnset
+            workbench.performAlgorithmTestRun(
+                    workbench.getKMeanAlgorithm(),
+                    learnset,
+                    (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue()
             );
-
-            System.out.println("Evaluating " + attempts + " samples with k-Mean algorithm...");
-            byte guessedLabel;
-            for (int i = offset; i < end; ++i) {
-                if ((guessedLabel = workbench.getKMeanAlgorithm().evaluate(images[i])) == images[i].getLabel()) {
-                    correctAttemptCount++;
-                } else {
-                    result.addFailure(new AlgorithmFailure(images[i], guessedLabel));
-                }
-            }
-
-            // Update correct attempts.
-            result.setCorrectAttemptCount(correctAttemptCount);
-
-
-            // Open results page.
-            new KMeanResultsFrame(result, workbench).setVisible(true);
         });
 
         setLayout(new MigLayout("", "", ""));

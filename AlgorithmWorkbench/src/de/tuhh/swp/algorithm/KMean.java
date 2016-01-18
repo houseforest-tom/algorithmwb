@@ -30,57 +30,6 @@ public class KMean extends AbstractAlgorithm {
     // Fields
     // ===========================================================
 
-    public class KMeanCluster extends ImageValue {
-        private LinkedList<ImageValue> children;
-
-        public KMeanCluster(ImageDefinition imageDefinition) {
-            super(imageDefinition, (byte) 0xff);
-            this.children = new LinkedList<>();
-        }
-
-        public void randomizeLocation(double min, double max) {
-            double[] location = new double[getDefinition().width * getDefinition().height];
-            for (int i = 0; i < location.length; ++i) {
-                location[i] = min + (max - min) * Math.random();
-            }
-            setPixels(location);
-        }
-
-        public LinkedList<ImageValue> getChildren() {
-            return children;
-        }
-
-        public double updateLocation() {
-            double[] location = getPixels();
-            double[] prevLocation = Arrays.copyOf(location, location.length);
-
-            if (children.size() > 0) {
-                // Reset location to zero.
-                int i = 0;
-                for (i = 0; i < location.length; ++i) {
-                    location[i] = 0.0;
-                }
-
-                // Sum up children locations.
-                double[] childLocation;
-                for (ImageValue child : children) {
-                    childLocation = child.getPixels();
-                    for (i = 0; i < location.length; ++i) {
-                        location[i] += childLocation[i];
-                    }
-                }
-
-                // Average.
-                for (i = 0; i < location.length; ++i) {
-                    location[i] /= children.size();
-                }
-            }
-
-            // Return distance that the cluster moved.
-            return dist(prevLocation, location);
-        }
-    }
-
     // k <=> Number of clusters to look for.
     private int k;
 
@@ -90,12 +39,22 @@ public class KMean extends AbstractAlgorithm {
     // Way to measure the distance between data points.
     private DistanceMeasure distanceMeasure;
 
+    // Requested number of iterations.
+    private int iterations;
+
+    // Requested error threshold for early-out.
+    private double threshold;
+
+    // Cluster intialization via RNG?
+    private boolean initialClusterRNG;
+
     // ===========================================================
     // Constructors
     // ===========================================================
 
     // Initialize k clusters at random positions.
     public KMean(int k, ImageDefinition imageDefinition, DistanceMeasure distanceMeasure) {
+        super("k-Mean");
         this.k = k;
         this.distanceMeasure = distanceMeasure;
         this.clusters = new KMeanCluster[k];
@@ -110,6 +69,30 @@ public class KMean extends AbstractAlgorithm {
 
     public KMeanCluster[] getClusters() {
         return clusters;
+    }
+
+    public boolean getInitialClusterRNG() {
+        return initialClusterRNG;
+    }
+
+    public void setInitialClusterRNG(boolean initialClusterRNG) {
+        this.initialClusterRNG = initialClusterRNG;
+    }
+
+    public double getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(double threshold) {
+        this.threshold = threshold;
+    }
+
+    public int getIterations() {
+        return iterations;
+    }
+
+    public void setIterations(int iterations) {
+        this.iterations = iterations;
     }
 
     // ===========================================================
@@ -180,16 +163,7 @@ public class KMean extends AbstractAlgorithm {
         }
     }
 
-    /**
-     * Feeds the KMean algorithm with its specified learning samples.
-     *
-     * @param iterations   Requested number of iterations.
-     * @param error        Minimum cluster movement per iterations. (Early-out)
-     * @param learningData Learning samples to use.
-     * @param rng          Whether to randomly place the initial clusters.
-     *                     If set to false, random samples from the learnset will be used for initialization.
-     */
-    public void feed(int iterations, double error, LearningData learningData, boolean rng) {
+    public void feed(LearningData learningData) {
         int iteration;               // Current iteration #.
         int clusterId;               // Current cluster #.
         int nearestClusterId;        // Nearest cluster #.
@@ -198,7 +172,7 @@ public class KMean extends AbstractAlgorithm {
         boolean earlyOut;            // Flag determining whether the algorithm will finish after the current iteration.
 
         for (int i = 0; i < this.clusters.length; ++i) {
-            if (rng) {
+            if (initialClusterRNG) {
                 this.clusters[i].randomizeLocation(0, 255);
             } else {
                 double[] px = learningData.get((int) (Math.random() * learningData.size())).getPixels();
@@ -234,7 +208,7 @@ public class KMean extends AbstractAlgorithm {
             // Reposition clusters and determine early-out condition.
             earlyOut = true;
             for (clusterId = 0; clusterId < k; ++clusterId) {
-                if (clusters[clusterId].updateLocation() > error) {
+                if (clusters[clusterId].updateLocation() > threshold) {
                     earlyOut = false;
                 }
             }
@@ -270,5 +244,54 @@ public class KMean extends AbstractAlgorithm {
     // Inner and Anonymous Classes
     // ===========================================================
 
-    ;;
+    public class KMeanCluster extends ImageValue {
+        private LinkedList<ImageValue> children;
+
+        public KMeanCluster(ImageDefinition imageDefinition) {
+            super(imageDefinition, (byte) 0xff);
+            this.children = new LinkedList<>();
+        }
+
+        public void randomizeLocation(double min, double max) {
+            double[] location = new double[getDefinition().width * getDefinition().height];
+            for (int i = 0; i < location.length; ++i) {
+                location[i] = min + (max - min) * Math.random();
+            }
+            setPixels(location);
+        }
+
+        public LinkedList<ImageValue> getChildren() {
+            return children;
+        }
+
+        public double updateLocation() {
+            double[] location = getPixels();
+            double[] prevLocation = Arrays.copyOf(location, location.length);
+
+            if (children.size() > 0) {
+                // Reset location to zero.
+                int i = 0;
+                for (i = 0; i < location.length; ++i) {
+                    location[i] = 0.0;
+                }
+
+                // Sum up children locations.
+                double[] childLocation;
+                for (ImageValue child : children) {
+                    childLocation = child.getPixels();
+                    for (i = 0; i < location.length; ++i) {
+                        location[i] += childLocation[i];
+                    }
+                }
+
+                // Average.
+                for (i = 0; i < location.length; ++i) {
+                    location[i] /= children.size();
+                }
+            }
+
+            // Return distance that the cluster moved.
+            return dist(prevLocation, location);
+        }
+    }
 }

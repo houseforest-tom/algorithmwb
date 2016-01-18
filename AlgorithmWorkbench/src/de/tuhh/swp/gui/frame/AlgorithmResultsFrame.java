@@ -1,6 +1,7 @@
 package de.tuhh.swp.gui.frame;
 
 import de.tuhh.swp.Workbench;
+import de.tuhh.swp.algorithm.AbstractAlgorithm;
 import de.tuhh.swp.algorithm.AlgorithmFailure;
 import de.tuhh.swp.algorithm.AlgorithmResult;
 import de.tuhh.swp.gui.component.HeadingLabel;
@@ -16,35 +17,34 @@ import java.util.ArrayList;
 /**
  * Created by Tom on 13.01.2016.
  */
-public class KMeanResultsFrame extends JFrame {
+public class AlgorithmResultsFrame extends JFrame {
 
     private int previewImageId = 0;
 
-    public KMeanResultsFrame(AlgorithmResult result, Workbench workbench) {
+    public AlgorithmResultsFrame(AbstractAlgorithm algorithm, AlgorithmResult result, Workbench workbench) {
 
-        super("Results of k-Mean test run.");
+        super("Results of " + algorithm.getName() + " test run.");
         setLayout(new MigLayout());
         setFocusable(true);
 
-        JLabel heading = new HeadingLabel("k-Mean Results", 30);
+        JLabel heading = new HeadingLabel("Evaluation Results", 30);
         add(heading, "center, wrap 16");
 
         JLabel classifier = new HeadingLabel("Classifier Information", 20);
         add(classifier, "wrap 8");
 
-        add(new JLabel("Algorithm: k-Mean"), "wrap");
+        add(new JLabel("Algorithm Name: " + algorithm.getName()), "wrap");
 
         // Learning data information.
         add(new JLabel("Used Learning Samples: " + result.getLearnset().size()), "wrap");
-        String learnsetPartition = "(";
+
+        // Learning data distribution.
+        JPanel distributionPanel = new JPanel();
+        distributionPanel.setLayout(new MigLayout("", "[80!]10[80!]10[80!]", "[20!]4[20!]4[20!]"));
         for (int i = 0; i <= 9; ++i) {
-            learnsetPartition += i + ": " + result.getLearnset().getSampleCount((byte) i);
-            if (i < 9) {
-                learnsetPartition += ", ";
-            }
+            distributionPanel.add(new JLabel(i + ": " + result.getLearnset().getSampleCount((byte) i)), (i % 3 == 2 ? "wrap" : ""));
         }
-        learnsetPartition += ")";
-        add(new JLabel(learnsetPartition), "wrap");
+        add(distributionPanel, "wrap 8");
 
         double successRate = (double) result.getCorrectAttempts() / (double) (result.getAttemptCount());
         add(new JLabel(
@@ -96,7 +96,7 @@ public class KMeanResultsFrame extends JFrame {
             previewPanel.add(backButton, "grow");
             previewPanel.add(image);
             previewPanel.add(forwardButton, "grow, wrap 8");
-            previewPanel.add(imageResult);
+            previewPanel.add(imageResult, "span 4, center");
             add(previewPanel);
 
             // Manouver using arrow keys.
