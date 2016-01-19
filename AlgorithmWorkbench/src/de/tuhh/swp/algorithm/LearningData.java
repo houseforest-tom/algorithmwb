@@ -15,16 +15,12 @@ import java.util.ArrayList;
 /**
  * TODO: Add type documentation here.
  */
-public class LearningData extends ArrayList<ImageValue> {
-
-    public LearningData() {
-        // TODO Auto-generated constructor stub
-    }
+public class LearningData extends ArrayList<Example> {
 
     public int getSampleCount(byte label) {
         int count = 0;
-        for (ImageValue image : this) {
-            if (image.getLabel().getValue() == label) {
+        for (Example example : this) {
+            if (example.getImage().getLabel().getValue() == label) {
                 ++count;
             }
         }

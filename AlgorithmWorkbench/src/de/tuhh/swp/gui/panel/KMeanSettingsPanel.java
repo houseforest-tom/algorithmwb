@@ -1,9 +1,7 @@
 package de.tuhh.swp.gui.panel;
 
 import de.tuhh.swp.Workbench;
-import de.tuhh.swp.algorithm.AbstractAlgorithm;
-import de.tuhh.swp.algorithm.KMean;
-import de.tuhh.swp.algorithm.LearningData;
+import de.tuhh.swp.algorithm.*;
 import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.gui.frame.KMeanClusterAssignmentFrame;
 import de.tuhh.swp.image.ImageValue;
@@ -78,8 +76,11 @@ public class KMeanSettingsPanel extends JPanel {
 
             // Add learning samples.
             learnset.clear();
+            Example example;
             for (int i = offset; i < end; ++i) {
-                learnset.add(images[i]);
+                example = new Example(Schema.DEFAULT_SCHEMA);
+                example.setImage(images[i]);
+                learnset.add(example);
             }
 
             Workbench.Debug.println("Feeding k-Mean algorithm " + learnset.size() + " learning samples...");

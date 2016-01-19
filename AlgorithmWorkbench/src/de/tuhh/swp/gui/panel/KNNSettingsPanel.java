@@ -1,9 +1,7 @@
 package de.tuhh.swp.gui.panel;
 
 import de.tuhh.swp.Workbench;
-import de.tuhh.swp.algorithm.AbstractAlgorithm;
-import de.tuhh.swp.algorithm.KNN;
-import de.tuhh.swp.algorithm.LearningData;
+import de.tuhh.swp.algorithm.*;
 import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
@@ -56,8 +54,11 @@ public class KNNSettingsPanel extends JPanel {
             SampleSettingsPanel settings = (SampleSettingsPanel) components.get("sampleSettings");
             int offset = settings.getSetting(SampleSettingsPanel.LEARNING_SAMPLES_OFFSET);
             int end = offset + settings.getSetting(SampleSettingsPanel.LEARNING_SAMPLES_COUNT);
+            Example example;
             for (int i = offset; i < end; ++i) {
-                learnset.add(images[i]);
+                example = new Example(Schema.DEFAULT_SCHEMA);
+                example.setImage(images[i]);
+                learnset.add(example);
             }
 
             Workbench.Debug.println("Feeding k-Nearest-Neighbour algorithm " + learnset.size() + " learning samples...");

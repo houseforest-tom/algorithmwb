@@ -134,13 +134,13 @@ public class KMean extends AbstractAlgorithm {
             cluster.getChildren().clear();
         }
 
-        for (ImageValue sample : learningData) {
+        for (Example sample : learningData) {
             minClusterDistance = Double.MAX_VALUE;
 
             // Find nearest cluster.
             nearestClusterId = -1;
             for (clusterId = 0; clusterId < k; ++clusterId) {
-                clusterDistance = dist(sample.getPixels(), clusters[clusterId].getPixels());
+                clusterDistance = dist(sample.getImage().getPixels(), clusters[clusterId].getPixels());
                 if (clusterDistance < minClusterDistance) {
                     nearestClusterId = clusterId;
                     minClusterDistance = clusterDistance;
@@ -148,7 +148,7 @@ public class KMean extends AbstractAlgorithm {
             }
 
             // Add sample to nearest cluster.
-            clusters[nearestClusterId].getChildren().add(sample);
+            clusters[nearestClusterId].getChildren().add(sample.getImage());
         }
 
         for (clusterId = 0; clusterId < k; ++clusterId) {
@@ -169,26 +169,26 @@ public class KMean extends AbstractAlgorithm {
             if (initialClusterRNG) {
                 this.clusters[i].randomizeLocation(0, 255);
             } else {
-                double[] px = learningData.get((int) (Math.random() * learningData.size())).getPixels();
+                double[] px = learningData.get((int) (Math.random() * learningData.size())).getImage().getPixels();
                 this.clusters[i].setPixels(Arrays.copyOf(px, px.length));
             }
         }
 
         for (iteration = 0; iteration < iterations; ++iteration) {
-            System.out.println("KMean Iteration " + (iteration + 1) + ".");
+            Workbench.Debug.println("KMean Iteration " + (iteration + 1) + ".");
 
             // Remove all children from clusters.
             for (KMeanCluster cluster : clusters) {
                 cluster.getChildren().clear();
             }
 
-            for (ImageValue sample : learningData) {
+            for (Example sample : learningData) {
                 minClusterDistance = Double.MAX_VALUE;
 
                 // Find nearest cluster.
                 nearestClusterId = -1;
                 for (clusterId = 0; clusterId < k; ++clusterId) {
-                    clusterDistance = dist(sample.getPixels(), clusters[clusterId].getPixels());
+                    clusterDistance = dist(sample.getImage().getPixels(), clusters[clusterId].getPixels());
                     if (clusterDistance < minClusterDistance) {
                         nearestClusterId = clusterId;
                         minClusterDistance = clusterDistance;
@@ -196,7 +196,7 @@ public class KMean extends AbstractAlgorithm {
                 }
 
                 // Add sample to nearest cluster.
-                clusters[nearestClusterId].getChildren().add(sample);
+                clusters[nearestClusterId].getChildren().add(sample.getImage());
             }
 
             // Reposition clusters and determine early-out condition.

@@ -100,6 +100,13 @@ public class Workbench extends JFrame {
         content = new JPanel();
         content.setLayout(new MigLayout());
 
+        ImageIcon tuhhLogo = new ImageIcon("res/tuhh.png");
+        tuhhLogo.setImage(tuhhLogo.getImage().getScaledInstance(440, 120, Image.SCALE_SMOOTH));
+        content.add(Box.createVerticalStrut(0), "wrap 6");
+        content.add(new JLabel(tuhhLogo), "wrap 30");
+        content.add(new JLabel("Gruppe B1.1"), "center, wrap 6");
+        content.add(new JLabel("HELLWEGE, Janina     GIERTZSCH, Fabian     HAUSWALD, Tom"), "center, wrap 6");
+
         // Setup menu bar.
         menubar = new de.tuhh.swp.gui.Menu(this);
         setJMenuBar(menubar);

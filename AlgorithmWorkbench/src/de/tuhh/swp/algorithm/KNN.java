@@ -66,8 +66,8 @@ public class KNN extends AbstractAlgorithm {
 	// ===========================================================
 
 	public void feed(LearningData data){
-		for(ImageValue sample : data){
-			tree.addPoint(sample.getPixels(), sample.getLabel());
+		for(Example sample : data){
+			tree.addPoint(sample.getImage().getPixels(), sample.getImage().getLabel());
 		}
 	}
 

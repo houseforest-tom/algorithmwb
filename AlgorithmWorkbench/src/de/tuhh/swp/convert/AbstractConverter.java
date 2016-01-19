@@ -51,16 +51,13 @@ public abstract class AbstractConverter<T> {
     // Methods
     // ===========================================================
 
-    /**
-     * Convert a file in an external format to the targeted internal datatype.
-     */
+    // Convert a file in an external format to the targeted internal datatype.
     public abstract T toInternal(byte[] external);
 
-    /**
-     * Convert an internal datatype to an external format.
-     */
+    // Convert an internal datatype to an external format.
     public abstract byte[] toExternal(T internal);
 
+    // Wraps the 4 bytes starting from offset into an integer.
     public static int bytesToInt(byte[] bytes, int offset) {
         return bytes[offset + 3] & 0xFF |
                 (bytes[offset + 2] & 0xFF) << 8 |
@@ -68,6 +65,7 @@ public abstract class AbstractConverter<T> {
                 (bytes[offset] & 0xFF) << 24;
     }
 
+    // Unwrap an integer into 4 bytes.
     public static byte[] intToBytes(int n) {
         return new byte[]{
                 (byte) ((n >> 24) & 0xFF),
