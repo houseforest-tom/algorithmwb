@@ -9,8 +9,6 @@ import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,28 +18,19 @@ import java.util.Map;
  */
 public class KNNSettingsPanel extends JPanel {
 
+    // Possible settings for k.
+    public static final int K_MIN = 1;
+    public static final int K_MAX = 15;
+    public static final int K_DEFAULT = 5;
+
     public KNNSettingsPanel(Workbench workbench) {
 
+        // Total number of sample images.
+        final int numImages = workbench.getImages().length;
+
         LinkedHashMap<String, JComponent> components = new LinkedHashMap<>();
-        components.put("k", new SliderPanel("k", 1, 100, 5));
-        components.put("learningSamples", new SliderPanel(
-                "Learning Samples",
-                0,
-                workbench.getImages().length,
-                workbench.getImages().length / 1000 * 999
-        ));
-        components.put("evaluationSamples", new SliderPanel(
-                "Evaluation Samples",
-                0,
-                workbench.getImages().length,
-                workbench.getImages().length / 1000
-        ));
-        final SliderPanel learningSamplesPanel = (SliderPanel) components.get("learningSamples");
-        final SliderPanel evaluationSamplesPanel = (SliderPanel) components.get("evaluationSamples");
-        learningSamplesPanel.addSliderChangeListener((ChangeEvent e) -> {
-            evaluationSamplesPanel.setMaxValue(workbench.getImages().length - (int)learningSamplesPanel.getSliderValue());
-            evaluationSamplesPanel.updateText();
-        });
+        components.put("k", new SliderPanel("k", K_MIN, K_MAX, K_DEFAULT));
+        components.put("sampleSettings", new SampleSettingsPanel(workbench));
         components.put("distanceMeasure", new ArrayDropdownPanel<>(
                 "Distance Measure",
                 AbstractAlgorithm.DistanceMeasure.values()
@@ -64,17 +53,25 @@ public class KNNSettingsPanel extends JPanel {
             ));
 
             LearningData learnset = new LearningData();
-            for (int i = 0; i < (int) ((SliderPanel) components.get("learningSamples")).getSliderValue(); ++i) {
+            SampleSettingsPanel settings = (SampleSettingsPanel) components.get("sampleSettings");
+            int offset = settings.getSetting(SampleSettingsPanel.LEARNING_SAMPLES_OFFSET);
+            int end = offset + settings.getSetting(SampleSettingsPanel.LEARNING_SAMPLES_COUNT);
+            for (int i = offset; i < end; ++i) {
                 learnset.add(images[i]);
             }
 
-            System.out.println("Feeding k-Nearest-Neighbour algorithm " + learnset.size() + " learning samples...");
+            Workbench.Debug.println("Feeding k-Nearest-Neighbour algorithm " + learnset.size() + " learning samples...");
             knn.feed(learnset);
 
-            workbench.performAlgorithmTestRun(knn, learnset, (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue());
+            workbench.performAlgorithmTestRun(
+                    knn,
+                    learnset,
+                    settings.getSetting(SampleSettingsPanel.EVALUATION_SAMPLES_OFFSET),
+                    settings.getSetting(SampleSettingsPanel.EVALUATION_SAMPLES_COUNT)
+            );
         });
 
-        setLayout(new MigLayout("", "", ""));
+        setLayout(new MigLayout());
         add(new HeadingLabel("k-Nearest-Neighbour Algorithm", 30), "center, wrap 16");
         for (Map.Entry<String, JComponent> component : components.entrySet()) {
             add(component.getValue(), "wrap");

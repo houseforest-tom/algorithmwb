@@ -7,6 +7,7 @@
  */
 package de.tuhh.swp.convert;
 
+import de.tuhh.swp.Workbench;
 import de.tuhh.swp.algorithm.IntTargetDefinition;
 import de.tuhh.swp.algorithm.IntTargetValue;
 import de.tuhh.swp.convert.AbstractConverter;
@@ -52,7 +53,7 @@ public class LabelConverter extends AbstractConverter<IntTargetValue[]> {
         }
 
         int numItems = AbstractConverter.bytesToInt(external, 4);
-        System.out.println("Loading labels for " + numItems + " training samples.");
+        Workbench.Debug.println("Loading labels for " + numItems + " training samples.");
 
         IntTargetValue[] labels = new IntTargetValue[numItems];
         for (int item = 0; item < numItems; ++item) {

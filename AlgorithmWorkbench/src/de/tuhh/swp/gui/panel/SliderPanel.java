@@ -1,12 +1,10 @@
 package de.tuhh.swp.gui.panel;
 
-import javafx.scene.control.TextFormatter;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
 
 /**
  * Created by Tom on 06.01.2016.
@@ -23,7 +21,7 @@ public class SliderPanel extends JPanel {
         this.slider = new JSlider(min, max, value);
         this.currentValueLabel = new JLabel("" + value);
         this.slider.addChangeListener((ChangeEvent e) -> {
-            currentValueLabel.setText("" + getSliderValue());
+            updateText();
         });
 
         add(nameLabel);
@@ -31,8 +29,8 @@ public class SliderPanel extends JPanel {
         add(currentValueLabel);
     }
 
-    public void updateText() {
-        this.currentValueLabel.setText("" + getSliderValue());
+    protected void updateText() {
+        this.currentValueLabel.setText("" + Math.round(getSliderValue()));
     }
 
     public void addSliderChangeListener(ChangeListener onChange) {
@@ -43,6 +41,19 @@ public class SliderPanel extends JPanel {
         int prevMax = this.slider.getMaximum();
         this.slider.setMaximum(max);
         this.slider.setValue((int) ((double) this.slider.getValue() * ((double) max / (double) prevMax)));
+        updateText();
+    }
+
+    public void setMinValue(int min) {
+        int prevMin = this.slider.getMinimum();
+        this.slider.setMinimum(min);
+        int max = this.slider.getMaximum();
+        if(max-prevMin == 0){
+            this.slider.setValue(max);
+        }else {
+            this.slider.setValue(this.slider.getValue() * (max - min) / (max - prevMin));
+        }
+        updateText();
     }
 
     public float getSliderValue() {

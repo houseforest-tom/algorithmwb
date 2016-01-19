@@ -8,6 +8,8 @@
 
 package de.tuhh.swp.algorithm;
 
+import com.sun.xml.internal.ws.api.pipe.FiberContextSwitchInterceptor;
+import de.tuhh.swp.Workbench;
 import de.tuhh.swp.image.ImageDefinition;
 import de.tuhh.swp.image.ImageValue;
 
@@ -71,10 +73,6 @@ public class KMean extends AbstractAlgorithm {
         return clusters;
     }
 
-    public boolean getInitialClusterRNG() {
-        return initialClusterRNG;
-    }
-
     public void setInitialClusterRNG(boolean initialClusterRNG) {
         this.initialClusterRNG = initialClusterRNG;
     }
@@ -85,10 +83,6 @@ public class KMean extends AbstractAlgorithm {
 
     public void setThreshold(double threshold) {
         this.threshold = threshold;
-    }
-
-    public int getIterations() {
-        return iterations;
     }
 
     public void setIterations(int iterations) {
@@ -181,7 +175,7 @@ public class KMean extends AbstractAlgorithm {
         }
 
         for (iteration = 0; iteration < iterations; ++iteration) {
-            //System.out.println("KMean Iteration " + (iteration + 1) + ".");
+            System.out.println("KMean Iteration " + (iteration + 1) + ".");
 
             // Remove all children from clusters.
             for (KMeanCluster cluster : clusters) {
@@ -214,12 +208,12 @@ public class KMean extends AbstractAlgorithm {
             }
 
             if (earlyOut) {
-                //System.out.println("KMean early-out condition met.");
+                Workbench.Debug.println("KMean early-out condition met.");
                 break;
             }
         }
 
-        //System.out.println("KMean algorithm finished.");
+        Workbench.Debug.println("KMean algorithm finished.");
     }
 
     public IntTargetValue evaluate(ImageValue image) {
@@ -299,6 +293,9 @@ public class KMean extends AbstractAlgorithm {
                     location[i] /= children.size();
                 }
             }
+
+            // Update location.
+            setPixels(location);
 
             // Return distance that the cluster moved.
             return dist(prevLocation, location);

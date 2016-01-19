@@ -32,9 +32,6 @@ public class KNN extends AbstractAlgorithm {
 	// k.
 	private int k;
 
-	// Image definition of samples.
-	private ImageDefinition definition;
-
 	// Stored label values.
 	private KdTree<IntTargetValue> tree;
 

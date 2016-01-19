@@ -1,15 +1,15 @@
 package de.tuhh.swp.gui.panel;
 
+import de.tuhh.swp.Workbench;
+import de.tuhh.swp.algorithm.AbstractAlgorithm;
+import de.tuhh.swp.algorithm.KMean;
+import de.tuhh.swp.algorithm.LearningData;
 import de.tuhh.swp.gui.component.HeadingLabel;
 import de.tuhh.swp.gui.frame.KMeanClusterAssignmentFrame;
-import de.tuhh.swp.gui.frame.AlgorithmResultsFrame;
-import de.tuhh.swp.Workbench;
-import de.tuhh.swp.algorithm.*;
 import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,30 +18,31 @@ import java.util.Map;
  * Created by Tom on 13.01.2016.
  */
 public class KMeanSettingsPanel extends JPanel {
+
+    // Possible settings for k.
+    public static final int K_MIN = 1;
+    public static final int K_MAX = 60;
+    public static final int K_DEFAULT = 10;
+
+    // Possible settings for iteration count.
+    public static final int ITER_MIN = 1;
+    public static final int ITER_MAX = 500;
+    public static final int ITER_DEFAULT = 30;
+
+    // Possible settings for min delta.
+    public static final float THRESH_MIN = 1;
+    public static final float THRESH_MAX = 500;
+    public static final float THRESH_DEFAULT = 30;
+
     public KMeanSettingsPanel(Workbench workbench) {
 
         LinkedHashMap<String, JComponent> components = new LinkedHashMap<>();
-        components.put("k", new SliderPanel("k", 1, 100, 20));
-        components.put("iterations", new SliderPanel("Iterations", 1, 500, 20));
-        components.put("minDelta", new FloatSliderPanel("Min. Delta", 1.0f, 100.0f, 5.0f));
-        components.put("learningSamples", new SliderPanel(
-                "Learning Samples",
-                0,
-                workbench.getImages().length,
-                workbench.getImages().length / 2
-        ));
-        components.put("evaluationSamples", new SliderPanel(
-                "Evaluation Samples",
-                0,
-                workbench.getImages().length,
-                workbench.getImages().length / 2
-        ));
-        final SliderPanel learningSamplesPanel = (SliderPanel) components.get("learningSamples");
-        final SliderPanel evaluationSamplesPanel = (SliderPanel) components.get("evaluationSamples");
-        learningSamplesPanel.addSliderChangeListener((ChangeEvent e) -> {
-            evaluationSamplesPanel.setMaxValue(workbench.getImages().length - (int)learningSamplesPanel.getSliderValue());
-            evaluationSamplesPanel.updateText();
-        });
+
+        components.put("k", new SliderPanel("k", K_MIN, K_MAX, K_DEFAULT));
+        components.put("iterations", new SliderPanel("Iterations", ITER_MIN, ITER_MAX, ITER_DEFAULT));
+        components.put("minDelta", new FloatSliderPanel("Min. Delta", THRESH_MIN, THRESH_MAX, THRESH_DEFAULT));
+        components.put("sampleSettings", new SampleSettingsPanel(workbench));
+
         components.put("distanceMeasure", new ArrayDropdownPanel<>(
                 "Distance Measure",
                 AbstractAlgorithm.DistanceMeasure.values()
@@ -55,6 +56,7 @@ public class KMeanSettingsPanel extends JPanel {
 
         ImageValue[] images = workbench.getImages();
         LearningData learnset = new LearningData();
+        final SampleSettingsPanel settings = (SampleSettingsPanel) components.get("sampleSettings");
 
         // Initiates cluster search.
         JButton searchButton = new JButton("Search Clusters");
@@ -71,18 +73,21 @@ public class KMeanSettingsPanel extends JPanel {
                     ((ArrayDropdownPanel<AbstractAlgorithm.DistanceMeasure>) components.get("distanceMeasure")).getSelection()
             ));
 
+            int offset = settings.getSetting(SampleSettingsPanel.LEARNING_SAMPLES_OFFSET);
+            int end = offset + settings.getSetting(SampleSettingsPanel.LEARNING_SAMPLES_COUNT);
+
             // Add learning samples.
             learnset.clear();
-            for (int i = 0; i < (int) ((SliderPanel) components.get("learningSamples")).getSliderValue(); ++i) {
+            for (int i = offset; i < end; ++i) {
                 learnset.add(images[i]);
             }
 
-            System.out.println("Feeding k-Mean algorithm " + learnset.size() + " learning samples...");
+            Workbench.Debug.println("Feeding k-Mean algorithm " + learnset.size() + " learning samples...");
             kmean.setIterations((int) ((SliderPanel) components.get("iterations")).getSliderValue());
             kmean.setThreshold(((SliderPanel) components.get("minDelta")).getSliderValue());
             kmean.setInitialClusterRNG(((ArrayDropdownPanel<String>) components.get("initialClusters")).getSelection().equals("Random Generation"));
             kmean.feed(learnset);
-            System.out.println("Finished searching " + kmean.getClusters().length + " clusters, please assign labels.");
+            Workbench.Debug.println("Finished searching " + kmean.getClusters().length + " clusters, please assign labels.");
 
             // Open cluster assignment view.
             new KMeanClusterAssignmentFrame(workbench).setVisible(true);
@@ -92,7 +97,8 @@ public class KMeanSettingsPanel extends JPanel {
             workbench.performAlgorithmTestRun(
                     workbench.getKMeanAlgorithm(),
                     learnset,
-                    (int) ((SliderPanel) components.get("evaluationSamples")).getSliderValue()
+                    settings.getSetting(SampleSettingsPanel.EVALUATION_SAMPLES_OFFSET),
+                    settings.getSetting(SampleSettingsPanel.EVALUATION_SAMPLES_COUNT)
             );
         });
 

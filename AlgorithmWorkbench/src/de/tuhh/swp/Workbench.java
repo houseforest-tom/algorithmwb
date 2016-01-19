@@ -9,7 +9,6 @@ package de.tuhh.swp;
 
 import de.tuhh.swp.algorithm.*;
 import de.tuhh.swp.gui.frame.AlgorithmResultsFrame;
-import de.tuhh.swp.gui.panel.SliderPanel;
 import de.tuhh.swp.image.ImageValue;
 import net.miginfocom.swing.MigLayout;
 import org.garret.perst.Database;
@@ -26,10 +25,6 @@ import java.io.File;
  * TODO: Document this type.
  */
 public class Workbench extends JFrame {
-
-    // GUI window dimensions.
-    public static final int WINDOW_WIDTH = 384;
-    public static final int WINDOW_HEIGHT = 640;
 
     // Perst stuff.
     private Database db;
@@ -71,15 +66,15 @@ public class Workbench extends JFrame {
         // Create new or open existing database.
         String dbPath = "res/images.dbs";
         boolean dbExists = new File(dbPath).exists();
-        if (dbExists) System.out.println("Using existing database " + dbPath);
-        else System.out.println("Creating new database " + dbPath);
+        if (dbExists) Workbench.Debug.println("Using existing database " + dbPath);
+        else Workbench.Debug.println("Creating new database " + dbPath);
         store = StorageFactory.getInstance().createStorage();
         store.open(dbPath, 1024);
         db = new Database(store, false);
         if (dbExists) {
             int count = db.getRecords(ImageValue.class).size();
             setImages(db.getRecords(ImageValue.class).toList().toArray(new ImageValue[count]));
-            System.out.println("Loaded " + count + " images.");
+            JOptionPane.showMessageDialog(this, "Loaded " + count + " images.");
         }
 
         initialize();
@@ -200,11 +195,15 @@ public class Workbench extends JFrame {
         component.setSize(dim);
     }
 
-    public void performAlgorithmTestRun(AbstractAlgorithm algorithm, LearningData learningData, int evaluationSamples) {
+    public void performAlgorithmTestRun(
+            AbstractAlgorithm algorithm,
+            LearningData learningData,
+            int evaluationSampleOffset,
+            int evaluationSampleCount) {
 
-        int attempts = evaluationSamples;
+        int attempts = evaluationSampleCount;
         int correctAttemptCount = 0;
-        int offset = learningData.size();
+        int offset = evaluationSampleOffset;
         int end = Math.min(offset + attempts, images.length);
         attempts = end - offset; // Adjust attempt count.
 
@@ -214,9 +213,10 @@ public class Workbench extends JFrame {
                 learningData
         );
 
-        System.out.println("Evaluating " + attempts + " samples with " + algorithm.getName() + " algorithm...");
-        IntTargetValue guessedLabel = new IntTargetValue(IntTargetDefinition.LABEL, 0);
+        Workbench.Debug.println("Evaluating " + attempts + " samples with " + algorithm.getName() + " algorithm...");
+        IntTargetValue guessedLabel;
         for (int i = offset; i < end; ++i) {
+            guessedLabel = new IntTargetValue(IntTargetDefinition.LABEL, 0);
             guessedLabel.setValue(algorithm.evaluate(images[i]).getValue());
             if (guessedLabel.getValue() == images[i].getLabel().getValue()) {
                 correctAttemptCount++;
@@ -237,5 +237,13 @@ public class Workbench extends JFrame {
     // Inner and Anonymous Classes
     // ===========================================================
 
-    ;;
+    public static final class Debug {
+
+        // Enable debug prints.
+        public static final boolean ENABLED = false;
+
+        public static final void println(String ln) {
+            if (Debug.ENABLED) System.out.println(ln);
+        }
+    }
 }

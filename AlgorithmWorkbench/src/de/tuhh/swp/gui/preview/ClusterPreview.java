@@ -27,7 +27,6 @@ public class ClusterPreview extends ImagePreview {
             public void mouseEntered(MouseEvent e) {
                 hovered = true;
             }
-
             public void mouseExited(MouseEvent e) {
                 hovered = false;
             }
@@ -42,7 +41,9 @@ public class ClusterPreview extends ImagePreview {
         assignFrame.setLocationRelativeTo(this);
         ImagePreview preview = new ImagePreview(this.cluster, this.getSize().width);
         NumPadPanel numpad = new NumPadPanel();
-        numpad.setSelection("" + cluster.getLabel());
+        if(cluster.isAssigned()){
+            numpad.setSelection("" + cluster.getLabel().getValue());
+        }
         JButton applyButton = new JButton("Assign");
         assignFrame.add(preview);
         assignFrame.add(numpad, "wrap 16");
@@ -82,12 +83,12 @@ public class ClusterPreview extends ImagePreview {
             Color color;
             for (y = 0; y < imageHeight; ++y) {
                 for (x = 0; x < imageWidth; ++x) {
-                    pixel = (int) cluster.getPixel(x, y);
+                    pixel = (int) (255 - cluster.getPixel(x, y));
                     color = new Color(pixel, pixel, pixel);
                     if (hovered && pixel >= 16) {
                         color = multiplyColors(color, new Color(0x64, 0x95, 0xed));
-                    } else if (!cluster.isAssigned()) {
-                        color = multiplyColors(color, new Color(0xbf, 0xff, 0x00));
+                    } else if (cluster.isAssigned()) {
+                        color = multiplyColors(color, new Color(0xA0, 0xff, 0x00));
                     }
                     g.setColor(color);
                     g.fillRect(x * xScale, y * yScale, xScale, yScale);

@@ -39,7 +39,7 @@ public class ImagePreview extends JButton {
             Color color;
             for (y = 0; y < imageHeight; ++y) {
                 for (x = 0; x < imageWidth; ++x) {
-                    pixel = (int) image.getPixel(x, y);
+                    pixel = (int) (255 - image.getPixel(x, y));
                     color = new Color(pixel, pixel, pixel);
                     g.setColor(color);
                     g.fillRect(x * xScale, y * yScale, xScale, yScale);

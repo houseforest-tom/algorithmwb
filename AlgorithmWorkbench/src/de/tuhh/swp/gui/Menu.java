@@ -110,7 +110,7 @@ public class Menu extends JMenuBar {
             byte[] imagesFile = Files.readAllBytes(Paths.get(imagesFilePath));
             ImageValue[] images = new ImageConverter(workbench, labels).toInternal(imagesFile);
             workbench.setImages(images);
-            System.out.println("Loaded " + images.length + " images.");
+            JOptionPane.showMessageDialog(workbench, "Loaded " + images.length + " images.");
         } catch (Exception e) {
             e.printStackTrace();
         }

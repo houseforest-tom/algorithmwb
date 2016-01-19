@@ -7,10 +7,11 @@ import javax.swing.event.ChangeEvent;
  */
 public class FloatSliderPanel extends SliderPanel {
 
+    private static final int RESOLUTION = Integer.MAX_VALUE;
     private float min, max;
 
     public FloatSliderPanel(String label, float min, float max, float value) {
-        super(label, 0, 100, (int) (value / (max - min) * 100));
+        super(label, 0, RESOLUTION, (int) (value / (max - min) * 100));
         this.min = min;
         this.max = max;
         updateText();
@@ -27,5 +28,10 @@ public class FloatSliderPanel extends SliderPanel {
     @Override
     public float getSliderValue() {
         return super.getSliderValue() / 100.0f * (max - min) + min;
+    }
+
+    @Override
+    protected void updateText() {
+        this.currentValueLabel.setText("" + this.getSliderValue());
     }
 }
