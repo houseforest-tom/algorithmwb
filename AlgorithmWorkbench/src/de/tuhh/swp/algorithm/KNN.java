@@ -12,6 +12,7 @@ import de.tuhh.swp.image.ImageDefinition;
 import de.tuhh.swp.image.ImageValue;
 import de.tuhh.swp.util.KdTree;
 
+import javax.swing.*;
 import java.util.List;
 
 /**
@@ -19,78 +20,79 @@ import java.util.List;
  */
 public class KNN extends AbstractAlgorithm {
 
-	// ===========================================================
-	// Constants
-	// ===========================================================
+    // ===========================================================
+    // Constants
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-	// k.
-	private int k;
+    // k.
+    private int k;
 
-	// Stored label values.
-	private KdTree<IntTargetValue> tree;
+    // Stored label values.
+    private KdTree<IntTargetValue> tree;
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-	public KNN(int k, ImageDefinition definition, DistanceMeasure distanceMeasure) {
-		super("k-Nearest-Neighbour");
-		this.k = k;
-		if(distanceMeasure == DistanceMeasure.Euclidean){
-			this.tree = new KdTree.SqrEuclid<>(definition.width * definition.height, null);
-		} else {
-			this.tree = new KdTree.Manhattan<>(definition.width * definition.height, null);
-		}
-	}
+    public KNN(int k, ImageDefinition definition, DistanceMeasure distanceMeasure) {
+        super("k-Nearest-Neighbour");
+        this.k = k;
+        if (distanceMeasure == DistanceMeasure.Euclidean) {
+            this.tree = new KdTree.SqrEuclid<>(definition.width * definition.height, null);
+        } else {
+            this.tree = new KdTree.Manhattan<>(definition.width * definition.height, null);
+        }
+    }
 
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Override Methods
-	// ===========================================================
+    // ===========================================================
+    // Override Methods
+    // ===========================================================
 
-	;;
+    ;;
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
+    // ===========================================================
+    // Methods
+    // ===========================================================
 
-	public void feed(LearningData data){
-		for(Example sample : data){
-			tree.addPoint(sample.getImage().getPixels(), sample.getImage().getLabel());
-		}
-	}
+    public void feed(LearningData data) {
+        for (Example sample : data) {
+            tree.addPoint(sample.getImage().getPixels(), sample.getImage().getLabel());
+        }
+    }
 
-	public IntTargetValue evaluate(ImageValue image){
-		List<KdTree.Entry<IntTargetValue>> neighbours = tree.nearestNeighbor(image.getPixels(), this.k, false);
-		int[] labelCounts = new int[10];
-		for(KdTree.Entry<IntTargetValue> label : neighbours){
-			++labelCounts[label.value.getValue()];
-		}
+    public IntTargetValue evaluate(ImageValue image) {
 
-		IntTargetValue result = new IntTargetValue(IntTargetDefinition.LABEL, 0);
-		for(int label = 1; label <= 9; ++label){
-			if(labelCounts[label] >= labelCounts[result.getValue()]){
-				result.setValue(label);
-			}
-		}
+        List<KdTree.Entry<IntTargetValue>> neighbours = tree.nearestNeighbor(image.getPixels(), this.k, false);
+        int[] labelCounts = new int[10];
+        for (KdTree.Entry<IntTargetValue> label : neighbours) {
+            ++labelCounts[label.value.getValue()];
+        }
 
-		return result;
-	}
+        IntTargetValue result = new IntTargetValue(IntTargetDefinition.LABEL, 0);
+        for (int label = 1; label <= 9; ++label) {
+            if (labelCounts[label] >= labelCounts[result.getValue()]) {
+                result.setValue(label);
+            }
+        }
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
+        return result;
+    }
 
-	;;
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
+
+    ;;
 }

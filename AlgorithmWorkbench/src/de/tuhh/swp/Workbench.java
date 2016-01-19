@@ -171,10 +171,6 @@ public class Workbench extends JFrame {
         this.knn = knn;
     }
 
-    public KNN getKNNAlgorithm() {
-        return knn;
-    }
-
     public void setKMeanAlgorithm(KMean kmean) {
         this.kmean = kmean;
     }
